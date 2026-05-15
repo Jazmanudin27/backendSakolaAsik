@@ -248,13 +248,18 @@ class SiswaUjianController extends Controller
                 ->first();
 
             if (!$jawabanSiswa) {
+                $sekolahId = $this->getCurrentSekolahId();
+                Log::info('Creating JawabanSiswa with sekolah_id: ' . $sekolahId);
+
                 $jawabanSiswa = JawabanSiswa::create([
                     'id_siswa' => $siswa->kode_siswa,
                     'id_ujian' => $ujian->id,
-                    'id_sekolah' => $this->getCurrentSekolahId(),
+                    'id_sekolah' => $sekolahId,
                     'waktu_mulai' => now(),
                     'status' => 'in_progress'
                 ]);
+
+                Log::info('JawabanSiswa created with id_sekolah: ' . $jawabanSiswa->id_sekolah);
             }
 
             // =========================

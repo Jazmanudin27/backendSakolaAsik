@@ -142,7 +142,6 @@ class UjianController extends SekolahAwareController
         return redirect()->route('admin.ujian.show', $ujian->id)
             ->with('success', 'Ujian berhasil dibuat.');
     }
-
     /**
      * Display cetak soal page.
      */

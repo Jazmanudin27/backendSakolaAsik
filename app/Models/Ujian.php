@@ -18,6 +18,7 @@ class Ujian extends Model
         'keterangan',
         'total_bobot',
         'id_sekolah',
+        'id_kelas',
         'file_soal',
         'id_jurusan',
     ];
@@ -29,7 +30,7 @@ class Ujian extends Model
 
     public function kelas()
     {
-        return $this->belongsTo(Kelas::class, 'tingkat');
+        return $this->belongsTo(Kelas::class, 'id_kelas');
     }
 
     public function mapel()
