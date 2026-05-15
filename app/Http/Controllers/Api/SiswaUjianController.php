@@ -187,33 +187,61 @@ class SiswaUjianController extends Controller
                 ], 401);
             }
 
-            Log::info('Starting exam ID: ' . $id);
+            $ujian = Ujian::with(['detailUjians' => function ($query) {
+                $query->orderByRaw("FIELD(tipe_soal, 'pilihan_ganda', 'benar_salah', 'isian_singkat','essay')")
+                    ->orderByRaw("FIELD(tingkat_kesulitan, 'mudah', 'sedang', 'sulit', 'tinggi')");
+            }])->findOrFail($id);
 
-            $ujian = Ujian::with([
-                'detailUjians' => function ($query) {
-                    $query->orderByRaw("FIELD(tipe_soal, 'pilihan_ganda', 'benar_salah', 'isian_singkat','essay')")
-                        ->orderByRaw("FIELD(tingkat_kesulitan, 'mudah', 'sedang', 'sulit', 'tinggi')");
-                }
-            ])->find($id);
+            // =========================
+            // GET CLASS INFO
+            // =========================
+            $kelas = \App\Models\Kelas::find($siswa->kode_kelas);
 
-            if (!$ujian) {
+            $studentTingkat = $kelas?->tingkat;
+            $studentJurusan = $kelas?->id_jurusan;
+
+            // =========================
+            // VALIDATION
+            // =========================
+            if ($ujian->tingkat != $studentTingkat) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ujian tidak ditemukan'
-                ], 404);
+                    'message' => 'Anda tidak berhak mengakses ujian ini'
+                ], 403);
             }
 
-            // ==============================
-            // FIX UTAMA TIME HANDLING
-            // ==============================
+            if ($ujian->id_jurusan && !in_array($studentJurusan, (array) $ujian->id_jurusan)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak berhak mengakses ujian ini'
+                ], 403);
+            }
 
-            $now = Carbon::now('Asia/Jakarta');
+            if ($ujian->status != 'Aktif') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ujian tidak aktif'
+                ], 403);
+            }
 
+            // =========================
+            // CHECK SUBMIT
+            // =========================
+            $hasSubmitted = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
+                ->where('id_ujian', $ujian->id)
+                ->where('status', 'submitted')
+                ->exists();
 
-            // ==============================
-            // CEK / CREATE SESSION
-            // ==============================
+            if ($hasSubmitted) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda sudah menyelesaikan ujian ini'
+                ], 400);
+            }
 
+            // =========================
+            // SESSION
+            // =========================
             $jawabanSiswa = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
                 ->where('id_ujian', $ujian->id)
                 ->where('status', 'in_progress')
@@ -223,62 +251,34 @@ class SiswaUjianController extends Controller
                 $jawabanSiswa = JawabanSiswa::create([
                     'id_siswa' => $siswa->kode_siswa,
                     'id_ujian' => $ujian->id,
-                    'waktu_mulai' => $now,
-                    'status' => 'in_progress',
-                    'id_sekolah' => $this->getCurrentSekolahId()
+                    'id_sekolah' => $this->getCurrentSekolahId(),
+                    'waktu_mulai' => now(),
+                    'status' => 'in_progress'
                 ]);
             }
 
-            // AMAN: pakai formatted kalau jam_mulai NULL
-            $jamMulai = $ujian->jam_mulai
-                ?? $ujian->jam_mulai_formatted
-                ?? null;
-
-            if (!$jamMulai) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Jam mulai ujian belum diatur'
-                ], 400);
-            }
-
-            $startTime = Carbon::parse($ujian->tanggal_ujian . ' ' . $jamMulai, 'Asia/Jakarta');
-
-            $endTime = $startTime->copy()->addMinutes($ujian->durasi);
-
-            // ==============================
-            // VALIDASI WAKTU
-            // ==============================
-
-            if ($now->lt($startTime)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ujian belum dimulai'
-                ], 403);
-            }
-
-            if ($now->gte($endTime)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Waktu ujian sudah habis',
-                    'data' => '1'
-                ], 403);
-            }
-
-            // ==============================
-            // GET EXISTING ANSWERS
-            // ==============================
-
+            // =========================
+            // EXISTING ANSWERS
+            // =========================
             $existingAnswers = DB::table('detail_jawaban_siswa')
                 ->where('id_jawaban_siswa', $jawabanSiswa->id)
                 ->pluck('jawaban', 'id_detail_ujian')
                 ->toArray();
 
-            // ==============================
-            // REMAINING TIME
-            // ==============================
+            // =========================
+            // TIME CALCULATION
+            // =========================
+            $totalDuration = $ujian->durasi * 60;
 
-            $remainingTime = $endTime->diffInSeconds($now);
+            $elapsedTime = $jawabanSiswa->waktu_mulai
+                ? \Carbon\Carbon::parse($jawabanSiswa->waktu_mulai)->diffInSeconds(now())
+                : 0;
 
+            $remainingTime = max(0, $totalDuration - $elapsedTime);
+
+            // =========================
+            // RESPONSE
+            // =========================
             return response()->json([
                 'success' => true,
                 'message' => 'Ujian dimulai',
@@ -286,10 +286,10 @@ class SiswaUjianController extends Controller
                     'ujian' => $ujian,
                     'jawaban_siswa_id' => $jawabanSiswa->id,
                     'existing_answers' => $existingAnswers,
-                    'remaining_time' => max(0, $remainingTime),
-                    'total_duration' => $ujian->durasi * 60,
-                    'waktu_mulai' => $startTime->toISOString(),
-                    'waktu_selesai' => $endTime->toISOString(),
+                    'remaining_time' => $remainingTime,
+                    'total_duration' => $totalDuration,
+                    'waktu_mulai' => $jawabanSiswa->waktu_mulai,
+                    'waktu_selesai_estimate' => now()->addSeconds($remainingTime)->toISOString()
                 ]
             ]);
 
@@ -300,7 +300,7 @@ class SiswaUjianController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memulai ujian',
-                'debug' => $e->getMessage() // sementara debug
+                'error' => $e->getMessage()
             ], 500);
         }
     }
