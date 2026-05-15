@@ -209,6 +209,26 @@ class SiswaUjianController extends Controller
 
             $now = Carbon::now('Asia/Jakarta');
 
+
+            // ==============================
+            // CEK / CREATE SESSION
+            // ==============================
+
+            $jawabanSiswa = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
+                ->where('id_ujian', $ujian->id)
+                ->where('status', 'in_progress')
+                ->first();
+
+            if (!$jawabanSiswa) {
+                $jawabanSiswa = JawabanSiswa::create([
+                    'id_siswa' => $siswa->kode_siswa,
+                    'id_ujian' => $ujian->id,
+                    'waktu_mulai' => $now,
+                    'status' => 'in_progress',
+                    'id_sekolah' => $this->getCurrentSekolahId()
+                ]);
+            }
+
             // AMAN: pakai formatted kalau jam_mulai NULL
             $jamMulai = $ujian->jam_mulai
                 ?? $ujian->jam_mulai_formatted
@@ -242,25 +262,6 @@ class SiswaUjianController extends Controller
                     'message' => 'Waktu ujian sudah habis',
                     'data' => '1'
                 ], 403);
-            }
-
-            // ==============================
-            // CEK / CREATE SESSION
-            // ==============================
-
-            $jawabanSiswa = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
-                ->where('id_ujian', $ujian->id)
-                ->where('status', 'in_progress')
-                ->first();
-
-            if (!$jawabanSiswa) {
-                $jawabanSiswa = JawabanSiswa::create([
-                    'id_siswa' => $siswa->kode_siswa,
-                    'id_ujian' => $ujian->id,
-                    'waktu_mulai' => $now,
-                    'status' => 'in_progress',
-                    'id_sekolah' => $this->getCurrentSekolahId()
-                ]);
             }
 
             // ==============================
