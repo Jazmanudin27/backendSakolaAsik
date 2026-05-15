@@ -137,10 +137,6 @@ class UjianController extends SekolahAwareController
                     'gambar_soal' => $fileName
                 ]);
             }
-            UjianSoal::create([
-                'id_ujian' => $ujian->id,
-                'gambar_soal' => $fileName
-            ]);
         }
 
         return redirect()->route('admin.ujian.show', $ujian->id)

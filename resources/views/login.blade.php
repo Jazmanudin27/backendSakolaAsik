@@ -19,7 +19,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            background:
+                url('https://img.magnific.com/free-vector/bubbles-blue-background_331749-689.jpg?semt=ais_hybrid&w=740&q=80') center/cover no-repeat fixed;
         }
 
         .login-card {

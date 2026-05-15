@@ -17,6 +17,24 @@ use Illuminate\Support\Facades\Log;
 class SiswaUjianController extends Controller
 {
     /**
+     * Get the current user's sekolah ID
+     *
+     * @return int|null
+     */
+    protected function getCurrentSekolahId()
+    {
+        if (Auth::guard('admin')->check()) {
+            return Auth::guard('admin')->user()->id_sekolah ?? '1';
+        } elseif (Auth::guard('guru')->check()) {
+            return Auth::guard('guru')->user()->id_sekolah;
+        } elseif (Auth::guard('siswa')->check()) {
+            return Auth::guard('siswa')->user()->id_sekolah;
+        }
+        
+        return null;
+    }
+
+    /**
      * Display list of available exams for the student.
      */
     public function index()
@@ -157,19 +175,25 @@ class SiswaUjianController extends Controller
     /**
      * Start the exam.
      */
-   public function start($id)
+    public function start($id)
     {
         try {
             $siswa = Auth::user();
+
+            if (!$siswa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
 
             Log::info('Starting exam ID: ' . $id);
 
             $ujian = Ujian::with([
                 'detailUjians' => function ($query) {
-                    return $query->orderByRaw("FIELD(tipe_soal, 'pilihan_ganda', 'benar_salah', 'isian_singkat','essay')")
+                    $query->orderByRaw("FIELD(tipe_soal, 'pilihan_ganda', 'benar_salah', 'isian_singkat','essay')")
                         ->orderByRaw("FIELD(tingkat_kesulitan, 'mudah', 'sedang', 'sulit', 'tinggi')");
-                },
-                'ujianSoals'
+                }
             ])->find($id);
 
             if (!$ujian) {
@@ -179,18 +203,32 @@ class SiswaUjianController extends Controller
                 ], 404);
             }
 
-            // ❗ FIX: pakai timezone konsisten (WAJIB)
+            // ==============================
+            // FIX UTAMA TIME HANDLING
+            // ==============================
+
             $now = Carbon::now('Asia/Jakarta');
 
-            // Jadwal ujian (INI ACUAN UTAMA)
-            $startTime = Carbon::parse(
-                $ujian->tanggal_ujian . ' ' . $ujian->jam_mulai,
-                'Asia/Jakarta'
-            );
+            // AMAN: pakai formatted kalau jam_mulai NULL
+            $jamMulai = $ujian->jam_mulai
+                ?? $ujian->jam_mulai_formatted
+                ?? null;
+
+            if (!$jamMulai) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Jam mulai ujian belum diatur'
+                ], 400);
+            }
+
+            $startTime = Carbon::parse($ujian->tanggal_ujian . ' ' . $jamMulai, 'Asia/Jakarta');
 
             $endTime = $startTime->copy()->addMinutes($ujian->durasi);
 
-            // ❌ belum mulai
+            // ==============================
+            // VALIDASI WAKTU
+            // ==============================
+
             if ($now->lt($startTime)) {
                 return response()->json([
                     'success' => false,
@@ -198,7 +236,6 @@ class SiswaUjianController extends Controller
                 ], 403);
             }
 
-            // ❌ sudah selesai
             if ($now->gte($endTime)) {
                 return response()->json([
                     'success' => false,
@@ -207,7 +244,10 @@ class SiswaUjianController extends Controller
                 ], 403);
             }
 
-            // cek sesi siswa
+            // ==============================
+            // CEK / CREATE SESSION
+            // ==============================
+
             $jawabanSiswa = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
                 ->where('id_ujian', $ujian->id)
                 ->where('status', 'in_progress')
@@ -218,17 +258,24 @@ class SiswaUjianController extends Controller
                     'id_siswa' => $siswa->kode_siswa,
                     'id_ujian' => $ujian->id,
                     'waktu_mulai' => $now,
-                    'status' => 'in_progress'
+                    'status' => 'in_progress',
+                    'id_sekolah' => $this->getCurrentSekolahId()
                 ]);
             }
 
-            // existing answers
+            // ==============================
+            // GET EXISTING ANSWERS
+            // ==============================
+
             $existingAnswers = DB::table('detail_jawaban_siswa')
                 ->where('id_jawaban_siswa', $jawabanSiswa->id)
                 ->pluck('jawaban', 'id_detail_ujian')
                 ->toArray();
 
-            // 🔥 REMAINING TIME FIXED (INI YANG PALING BENAR)
+            // ==============================
+            // REMAINING TIME
+            // ==============================
+
             $remainingTime = $endTime->diffInSeconds($now);
 
             return response()->json([
@@ -247,10 +294,12 @@ class SiswaUjianController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Start exam error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memulai ujian'
+                'message' => 'Gagal memulai ujian',
+                'debug' => $e->getMessage() // sementara debug
             ], 500);
         }
     }
