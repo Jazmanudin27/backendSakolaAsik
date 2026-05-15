@@ -1,0 +1,342 @@
+.menu-container {
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    position: relative;
+    background:
+        url('https://img.magnific.com/free-vector/bubbles-blue-background_331749-689.jpg?semt=ais_hybrid&w=740&q=80') center/cover no-repeat fixed;
+}
+
+.menu-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.menu-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.menu-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.5rem;
+}
+
+.menu-header p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Tab Navigation */
+.tab-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.tab-btn {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.tab-btn.active {
+    background: white;
+    color: #2563eb;
+    border-color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.menu-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.menu-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.menu-card .card-body {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.menu-card .icon-wrapper {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.menu-card .icon-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 120%;
+    height: 120%;
+    border-radius: 50%;
+    background: inherit;
+    opacity: 0.3;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.1;
+    }
+}
+
+.menu-card:hover .icon-wrapper {
+    transform: rotate(10deg) scale(1.1);
+}
+
+.menu-card .icon-wrapper i {
+    font-size: 2.5rem;
+    z-index: 1;
+}
+
+.menu-card h6 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+    text-align: center;
+    transition: color 0.3s ease;
+}
+
+.menu-card:hover h6 {
+    color: #2563eb;
+}
+
+/* Card color variations */
+.card-guru .icon-wrapper {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.card-guru .icon-wrapper i {
+    color: white;
+}
+
+.card-siswa .icon-wrapper {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.card-siswa .icon-wrapper i {
+    color: white;
+}
+
+.card-kelas .icon-wrapper {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.card-kelas .icon-wrapper i {
+    color: white;
+}
+
+.card-jurusan .icon-wrapper {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.card-jurusan .icon-wrapper i {
+    color: white;
+}
+
+.card-mapel .icon-wrapper {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+}
+
+.card-mapel .icon-wrapper i {
+    color: white;
+}
+
+.card-tahun .icon-wrapper {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+}
+
+.card-tahun .icon-wrapper i {
+    color: white;
+}
+
+.card-ujian .icon-wrapper {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+    color: white;
+}
+
+.card-ujian .icon-wrapper i {
+    color: white;
+}
+
+.card-hasil .icon-wrapper {
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    color: white;
+}
+
+.card-hasil .icon-wrapper i {
+    color: white;
+}
+
+.card-laporan .icon-wrapper {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+}
+
+.card-laporan .icon-wrapper i {
+    color: white;
+}
+
+.card-setting .icon-wrapper {
+    background: linear-gradient(135deg, #64748b, #475569);
+    color: white;
+}
+
+.card-setting .icon-wrapper i {
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .menu-header h1 {
+        font-size: 2rem;
+    }
+
+    .menu-container {
+        padding: 1rem;
+    }
+
+    .tab-navigation {
+        gap: 0.25rem;
+    }
+
+    .tab-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+
+.question-nav {
+    min-width: 40px;
+}
+
+.question-nav.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.timer-display {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.soal-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-check {
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.15s ease-in-out;
+}
+
+.form-check:hover {
+    background-color: #f8f9fa;
+    border-color: #007bff;
+}
+
+.form-check-input:checked~.form-check-label {
+    font-weight: 600;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
