@@ -9,13 +9,16 @@
 
     <!-- Tab Navigation -->
     <div class="tab-navigation text-center mb-4">
+        @if($userRole === 'admin')
         <button class="tab-btn active" data-tab="data-master">📊 Data Master</button>
-        <button class="tab-btn" data-tab="learning">📚 Learning</button>
+        @endif
+        <button class="tab-btn {{ $userRole !== 'admin' ? 'active' : '' }}" data-tab="learning">📚 Learning</button>
         <button class="tab-btn" data-tab="laporan">📄 Laporan</button>
         <button class="tab-btn" data-tab="setting">⚙️ Setting</button>
     </div>
 
     <!-- Tab Content: Data Master -->
+    @if($userRole === 'admin')
     <div class="tab-content active" id="data-master">
         <div class="row g-4 justify-content-center">
 
@@ -99,9 +102,10 @@
 
         </div>
     </div>
+    @endif
 
     <!-- Tab Content: Learning -->
-    <div class="tab-content" id="learning">
+    <div class="tab-content {{ $userRole !== 'admin' ? 'active' : '' }}" id="learning">
         <div class="row g-4 justify-content-center">
 
             <div class="col-xl-3 col-lg-4 col-md-6 col-12">

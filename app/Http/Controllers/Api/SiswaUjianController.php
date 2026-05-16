@@ -593,6 +593,101 @@ class SiswaUjianController extends Controller
     }
 
     /**
+     * Get detailed exam result for a specific exam
+     */
+    public function detailResult($resultId)
+    {
+        try {
+            $siswa = Auth::user();
+
+            $jawabanSiswa = JawabanSiswa::with(['ujian.mapel', 'ujian.tahunPelajaran'])
+                ->where('id', $resultId)
+                ->where('id_siswa', $siswa->kode_siswa)
+                ->first();
+
+            if (!$jawabanSiswa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data hasil ujian tidak ditemukan'
+                ], 404);
+            }
+
+            // Get exam questions with correct answers
+            $soals = UjianSoal::where('id_ujian', $jawabanSiswa->id_ujian)
+                ->with(['pilihanGanda'])
+                ->get();
+
+            // Get student's answers
+            $jawabanDetail = DB::table('detail_jawaban_siswa')
+                ->where('id_jawaban_siswa', $jawabanSiswa->id)
+                ->get();
+
+            // Format the response
+            $formattedSoals = $soals->map(function($soal) use ($jawabanDetail) {
+                $studentAnswer = $jawabanDetail->firstWhere('id_soal', $soal->id);
+                $isCorrect = false;
+                $studentAnswerText = null;
+
+                if ($studentAnswer) {
+                    $studentAnswerText = $studentAnswer->jawaban;
+                    // Check if answer is correct
+                    $correctAnswer = $soal->pilihanGanda->firstWhere('is_benar', true);
+                    if ($correctAnswer && $studentAnswerText === $correctAnswer->id) {
+                        $isCorrect = true;
+                    }
+                }
+
+                return [
+                    'id' => $soal->id,
+                    'pertanyaan' => $soal->pertanyaan,
+                    'tipe_soal' => $soal->tipe_soal,
+                    'pilihan_ganda' => $soal->pilihanGanda->map(function($pilihan) {
+                        return [
+                            'id' => $pilihan->id,
+                            'teks_pilihan' => $pilihan->teks_pilihan,
+                            'is_benar' => $pilihan->is_benar
+                        ];
+                    }),
+                    'jawaban_siswa' => $studentAnswerText,
+                    'is_correct' => $isCorrect
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data detail hasil ujian berhasil diambil',
+                'data' => [
+                    'ujian' => [
+                        'id' => $jawabanSiswa->ujian->id,
+                        'kode_ujian' => $jawabanSiswa->ujian->kode_ujian,
+                        'nama_ujian' => $jawabanSiswa->ujian->kode_ujian,
+                        'mapel' => [
+                            'nama_mapel' => $jawabanSiswa->ujian->mapel->nama_mapel ?? null,
+                        ],
+                        'tanggal_ujian' => $jawabanSiswa->ujian->tanggal_ujian,
+                        'durasi' => $jawabanSiswa->ujian->durasi
+                    ],
+                    'nilai' => $jawabanSiswa->nilai ?? 0,
+                    'waktu_mulai' => $jawabanSiswa->waktu_mulai,
+                    'waktu_selesai' => $jawabanSiswa->waktu_selesai,
+                    'soals' => $formattedSoals,
+                    'total_soal' => $formattedSoals->count(),
+                    'benar' => $formattedSoals->where('is_correct', true)->count(),
+                    'salah' => $formattedSoals->where('is_correct', false)->count()
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error in SiswaUjianController@detailResult: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data detail hasil ujian',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get student information for home/profile screen
      */
     public function infoSiswa()

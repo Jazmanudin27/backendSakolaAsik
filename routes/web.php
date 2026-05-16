@@ -217,6 +217,15 @@ Route::prefix('guru')->name('guru.')->group(function () {
             'destroy' => 'sekolah.destroy'
         ]);
 
+        Route::resource('siswa', AdminSiswaController::class)->names([
+            'index' => 'siswa.index',
+            'create' => 'siswa.create',
+            'store' => 'siswa.store',
+            'show' => 'siswa.show',
+            'edit' => 'siswa.edit',
+            'update' => 'siswa.update',
+            'destroy' => 'siswa.destroy'
+        ]);
         
         // Guru Routes
         Route::resource('guru', AdminGuruController::class)->names([
