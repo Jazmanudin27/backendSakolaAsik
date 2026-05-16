@@ -34,6 +34,19 @@ class SiswaUjianController extends Controller
         return null;
     }
 
+    protected function isExamTimeExpired($jawabanSiswa, $ujian)
+    {
+        if (!$jawabanSiswa || !$jawabanSiswa->waktu_mulai) {
+            return false;
+        }
+
+        $waktuMulai = Carbon::parse($jawabanSiswa->waktu_mulai);
+
+        $waktuHabis = $waktuMulai->copy()->addMinutes($ujian->durasi);
+
+        return now()->greaterThanOrEqualTo($waktuHabis);
+    }
+
     /**
      * Display list of available exams for the student.
      */
@@ -80,8 +93,28 @@ class SiswaUjianController extends Controller
                 Log::info('Ujian data for mobile:', [
                     'id' => $ujian->id,
                     'kode_ujian' => $ujian->kode_ujian,
-                    'nama_ujian' => $ujian->nama_ujian
+                    'nama_ujian' => $ujian->kode_ujian
                 ]);
+
+                $jawaban = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
+                    ->where('id_ujian', $ujian->id)
+                    ->first();
+
+                if ($jawaban && $jawaban->status == 'in_progress') {
+
+                    $elapsed = Carbon::parse($jawaban->waktu_mulai)
+                        ->diffInSeconds(now());
+
+                    $remaining = ($ujian->durasi * 60) - $elapsed;
+
+                    if ($remaining <= 0) {
+
+                        $jawaban->update([
+                            'status' => 'submitted',
+                            'waktu_selesai' => now()
+                        ]);
+                    }
+                }
             }
             
             return response()->json([
@@ -199,6 +232,7 @@ class SiswaUjianController extends Controller
 
             $studentTingkat = $kelas?->tingkat;
             $studentJurusan = $kelas?->id_jurusan;
+            $studentSekolah = $kelas?->id_sekolah;
 
             // =========================
             // VALIDATION
@@ -248,13 +282,11 @@ class SiswaUjianController extends Controller
                 ->first();
 
             if (!$jawabanSiswa) {
-                $sekolahId = $this->getCurrentSekolahId();
-                Log::info('Creating JawabanSiswa with sekolah_id: ' . $sekolahId);
-
+                Log::info('Creating JawabanSiswa with sekolah_id: ' . $studentSekolah);
                 $jawabanSiswa = JawabanSiswa::create([
                     'id_siswa' => $siswa->kode_siswa,
                     'id_ujian' => $ujian->id,
-                    'id_sekolah' => $sekolahId,
+                    'id_sekolah' => $studentSekolah,
                     'waktu_mulai' => now(),
                     'status' => 'in_progress'
                 ]);
@@ -280,7 +312,19 @@ class SiswaUjianController extends Controller
                 : 0;
 
             $remainingTime = max(0, $totalDuration - $elapsedTime);
+            if ($remainingTime <= 0) {
 
+                $jawabanSiswa->update([
+                    'status' => 'submitted',
+                    'waktu_selesai' => now()
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Waktu ujian sudah habis',
+                    'data' => '1'
+                ]);
+            }
             // =========================
             // RESPONSE
             // =========================
@@ -294,7 +338,6 @@ class SiswaUjianController extends Controller
                     'remaining_time' => $remainingTime,
                     'total_duration' => $totalDuration,
                     'waktu_mulai' => $jawabanSiswa->waktu_mulai,
-                    'waktu_selesai_estimate' => now()->addSeconds($remainingTime)->toISOString()
                 ]
             ]);
 
@@ -354,6 +397,26 @@ class SiswaUjianController extends Controller
             ], [
                 'waktu_mulai' => now()
             ]);
+
+            if (!$jawabanSiswa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sesi ujian tidak ditemukan'
+                ], 404);
+            }
+
+            if ($this->isExamTimeExpired($jawabanSiswa, $ujian)) {
+
+                $jawabanSiswa->update([
+                    'status' => 'submitted',
+                    'waktu_selesai' => now()
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Waktu ujian habis, ujian otomatis disubmit'
+                ]);
+            }
             
             // Save the answer
             DB::table('detail_jawaban_siswa')->updateOrInsert(
@@ -418,12 +481,25 @@ class SiswaUjianController extends Controller
                 ->where('status', 'in_progress')
                 ->first();
                 
+            if ($this->isExamTimeExpired($jawabanSiswa, $ujian)) {
+
+                $jawabanSiswa->update([
+                    'status' => 'submitted',
+                    'waktu_selesai' => now()
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Waktu ujian habis, ujian otomatis disubmit'
+                ]);
+            }
             if (!$jawabanSiswa) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Sesi ujian tidak ditemukan'
                 ], 404);
             }
+
             
             // Check if already submitted
             if ($jawabanSiswa->status == 'submitted') {
@@ -478,12 +554,18 @@ class SiswaUjianController extends Controller
                     'id' => $result->id,
                     'ujian' => [
                         'id' => $result->ujian->id,
-                        'nama_ujian' => $result->ujian->nama_ujian,
-                        'mapel' => $result->ujian->mapel->nama_mapel ?? null,
-                        'tahun_pelajaran' => $result->ujian->tahunPelajaran->nama_tahun ?? null,
+                        'kode_ujian' => $result->ujian->kode_ujian,
+                        'nama_ujian' => $result->ujian->kode_ujian,
+                        'mapel' => [
+                            'nama_mapel' => $result->ujian->mapel->nama_mapel ?? null,
+                        ],
+                        'tahunPelajaran' => [
+                            'nama_tahun' => $result->ujian->tahunPelajaran->nama_tahun ?? null,
+                        ],
                         'tanggal_ujian' => $result->ujian->tanggal_ujian,
                         'durasi' => $result->ujian->durasi
                     ],
+                    'nilai' => $result->nilai ?? 0,
                     'waktu_mulai' => $result->waktu_mulai,
                     'waktu_selesai' => $result->waktu_selesai,
                     'status' => $result->status,
@@ -505,6 +587,70 @@ class SiswaUjianController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data hasil ujian',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get student information for home/profile screen
+     */
+    public function infoSiswa()
+    {
+        try {
+            $siswa = Auth::user();
+            
+            // Get student's class information
+            $kelas = Kelas::find($siswa->kode_kelas);
+            
+            // Get exam statistics
+            $totalExams = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
+                ->where('status', 'submitted')
+                ->count();
+            
+            // Get upcoming exams
+            $upcomingExams = Ujian::with(['mapel'])
+                ->where('tingkat', $kelas?->tingkat)
+                ->where('status', 'Aktif')
+                ->where('tanggal_ujian', '>=', now()->format('Y-m-d'))
+                ->orderBy('tanggal_ujian', 'asc')
+                ->count();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Data siswa berhasil diambil',
+                'data' => [
+                    'siswa' => [
+                        'kode_siswa' => $siswa->kode_siswa,
+                        'nama_siswa' => $siswa->nama_siswa,
+                        'nis' => $siswa->nis ?? null,
+                        'email' => $siswa->email ?? null,
+                        'no_hp' => $siswa->no_hp ?? null,
+                        'jenis_kelamin' => $siswa->jenis_kelamin ?? null,
+                        'tempat_lahir' => $siswa->tempat_lahir ?? null,
+                        'tanggal_lahir' => $siswa->tanggal_lahir ?? null,
+                        'alamat' => $siswa->alamat ?? null,
+                        'foto' => $siswa->foto ?? null,
+                    ],
+                    'kelas' => [
+                        'kode_kelas' => $kelas?->kode_kelas,
+                        'nama_kelas' => $kelas?->nama_kelas,
+                        'tingkat' => $kelas?->tingkat,
+                        'jurusan_id' => $kelas?->jurusan_id,
+                        'wali_kelas' => $kelas?->wali_kelas ?? null,
+                    ],
+                    'statistik' => [
+                        'total_ujian_selesai' => $totalExams,
+                        'ujian_sedang_berlangsung' => $upcomingExams,
+                    ]
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error in SiswaUjianController@infoSiswa: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data siswa',
                 'error' => $e->getMessage()
             ], 500);
         }

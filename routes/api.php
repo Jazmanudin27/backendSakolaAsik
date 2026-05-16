@@ -45,18 +45,7 @@ Route::prefix('v1')->group(function () {
         
         // Siswa specific API routes
         Route::prefix('siswa')->middleware('auth:sanctum')->group(function () {
-            // Ujian (Exams) API routes
-           });
-        
-        // Siswa specific API routes
-        Route::prefix('siswa')->middleware('auth:siswa-api')->group(function () {
-            Route::get('/dashboard', function () {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Siswa dashboard data',
-                    'data' => []
-                ]);
-            });
+            Route::get('/info', [SiswaUjianController::class, 'infoSiswa']);
             
             // Ujian API routes
             Route::prefix('ujian')->group(function () {

@@ -216,6 +216,18 @@ Route::prefix('guru')->name('guru.')->group(function () {
             'update' => 'sekolah.update',
             'destroy' => 'sekolah.destroy'
         ]);
+
+        
+        // Guru Routes
+        Route::resource('guru', AdminGuruController::class)->names([
+            'index' => 'guru.index',
+            'create' => 'guru.create',
+            'store' => 'guru.store',
+            'show' => 'guru.show',
+            'edit' => 'guru.edit',
+            'update' => 'guru.update',
+            'destroy' => 'guru.destroy'
+        ]);
         
         // Ujian Routes for teachers
         Route::resource('ujian', UjianController::class)->names([

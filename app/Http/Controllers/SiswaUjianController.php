@@ -12,9 +12,17 @@ use Illuminate\Support\Facades\Log;
 
 class SiswaUjianController extends SekolahAwareController
 {
-    /**
-     * Display list of available exams for the student.
-     */
+   protected function isExamTimeExpired($jawabanSiswa, $ujian)
+    {
+        if (!$jawabanSiswa || !$jawabanSiswa->waktu_mulai) {
+            return false;
+        }
+        $waktuMulai = \Carbon\Carbon::parse($jawabanSiswa->waktu_mulai);
+        $waktuHabis = $waktuMulai->copy()->addMinutes($ujian->durasi);
+        return now()->greaterThanOrEqualTo($waktuHabis);
+    }
+
+
     public function index()
     {
         $siswa = Auth::guard('siswa')->user();
@@ -43,6 +51,26 @@ class SiswaUjianController extends SekolahAwareController
             $ujian->has_completed = $ujian->jawabanSiswas->contains(function($jawaban) use ($siswa) {
                 return $jawaban->id_siswa == $siswa->kode_siswa && $jawaban->status == 'submitted';
             });
+
+            $jawaban = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
+                ->where('id_ujian', $ujian->id)
+                ->first();
+
+            if ($jawaban && $jawaban->status == 'in_progress') {
+
+                $elapsed = \Carbon\Carbon::parse($jawaban->waktu_mulai)
+                    ->diffInSeconds(now());
+
+                $remaining = ($ujian->durasi * 60) - $elapsed;
+
+                if ($remaining <= 0) {
+
+                    $jawaban->update([
+                        'status' => 'submitted',
+                        'waktu_selesai' => now()
+                    ]);
+                }
+            }
         }
         
         return view('siswa.ujian.index', compact('ujians', 'siswa', 'hasCompletedExam'));
@@ -149,7 +177,16 @@ class SiswaUjianController extends SekolahAwareController
         $totalDuration = $ujian->durasi * 60; // Convert to seconds
         $elapsedTime = $jawabanSiswa->waktu_mulai->diffInSeconds(now());
         $remainingTime = max(0, round($totalDuration - $elapsedTime));
-        
+        if ($remainingTime <= 0) {
+
+            $jawabanSiswa->update([
+                'status' => 'submitted',
+                'waktu_selesai' => now()
+            ]);
+
+            return redirect()->route('siswa.ujian.index')
+                ->with('error', 'Waktu ujian sudah habis');
+        }
         return view('siswa.ujian.start', compact('ujian', 'siswa', 'jawabanSiswa', 'existingAnswers', 'remainingTime'));
     }
 
@@ -183,13 +220,28 @@ class SiswaUjianController extends SekolahAwareController
         }
         
         // Get or create answer session
-        $jawabanSiswa = JawabanSiswa::firstOrCreate([
-            'id_siswa' => $siswa->kode_siswa,
-            'id_ujian' => $ujian->id,
-            'status' => 'in_progress'
-        ], [
-            'waktu_mulai' => now()
-        ]);
+        $jawabanSiswa = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
+            ->where('id_ujian', $ujian->id)
+            ->where('status', 'in_progress')
+            ->first();
+
+        if (!$jawabanSiswa) {
+            return response()->json([
+                'error' => 'Sesi ujian tidak ditemukan'
+            ], 404);
+        }
+
+        if ($this->isExamTimeExpired($jawabanSiswa, $ujian)) {
+
+            $jawabanSiswa->update([
+                'status' => 'submitted',
+                'waktu_selesai' => now()
+            ]);
+
+            return response()->json([
+                'error' => 'Waktu ujian sudah habis'
+            ], 403);
+        }
         
         // Save the answer
         DB::table('detail_jawaban_siswa')->updateOrInsert(
@@ -235,6 +287,16 @@ class SiswaUjianController extends SekolahAwareController
             ->where('status', 'in_progress')
             ->firstOrFail();
      
+        if ($this->isExamTimeExpired($jawabanSiswa, $ujian)) {
+
+            $jawabanSiswa->update([
+                'status' => 'submitted',
+                'waktu_selesai' => now()
+            ]);
+
+            return redirect()->route('siswa.ujian.index')
+                ->with('success', 'Waktu ujian habis, ujian otomatis disubmit');
+        }
         // Save all current answers to detail_jawaban_siswa table
         $currentAnswers = DB::table('detail_jawaban_siswa')
             ->where('id_jawaban_siswa', $jawabanSiswa->id)
