@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\SiswaDashboardController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminSiswaController;
 use App\Http\Controllers\AdminAdminController;
 use App\Http\Controllers\AdminSekolahController;
@@ -32,9 +32,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::prefix('siswa')->name('siswa.')->group(function () {
     Route::middleware(['auth:siswa', 'check.sekolah'])->group(function () {
-        Route::get('/dashboard', function () {
-            return view('dashboard.siswa.index');
-        })->name('dashboard');
+        Route::get('/dashboard', [HomeController::class, 'siswaDashboard'])->name('dashboard');
 
         // Ujian Routes for Students
         Route::get('/ujian', [SiswaUjianController::class, 'index'])->name('ujian.index');
@@ -52,9 +50,7 @@ Route::prefix('siswa')->name('siswa.')->group(function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth:admin', 'check.sekolah'])->group(function () {
-        Route::get('/dashboard', function () {
-            return view('dashboard.admin.index');
-        })->name('dashboard');
+        Route::get('/dashboard', [HomeController::class, 'adminDashboard'])->name('dashboard');
         
         // Admin Routes
         Route::resource('admin', AdminAdminController::class)->names([
@@ -202,9 +198,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 Route::prefix('guru')->name('guru.')->group(function () {
     Route::middleware(['auth:guru', 'check.sekolah'])->group(function () {
-        Route::get('/dashboard', function () {
-            return view('dashboard.guru.index');
-        })->name('dashboard');
+        Route::get('/dashboard', [HomeController::class, 'guruDashboard'])->name('dashboard');
         
         // Sekolah Routes
         Route::resource('sekolah', AdminSekolahController::class)->names([

@@ -10,7 +10,6 @@ class LoginController extends Controller
 {
     public function showLoginForm()
     {
-        // Jika user sudah login, redirect ke dashboard yang sesuai
         if (Auth::guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
@@ -42,6 +41,12 @@ class LoginController extends Controller
         
         // Try to authenticate with guru guard using email
         if (Auth::guard('guru')->attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
+            $request->session()->regenerate();
+            return redirect()->intended('/guru/dashboard')
+                ->with('success', 'Login berhasil! Selamat datang ' . Auth::guard('guru')->user()->nama_guru);
+        }
+
+        if (Auth::guard('guru')->attempt(['username' => $credentials['username'], 'password' => $credentials['password']])) {
             $request->session()->regenerate();
             return redirect()->intended('/guru/dashboard')
                 ->with('success', 'Login berhasil! Selamat datang ' . Auth::guard('guru')->user()->nama_guru);

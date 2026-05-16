@@ -2,28 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 class HomeController extends SekolahAwareController
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+
+    public function siswaDashboard()
     {
-        parent::__construct();
-        $this->middleware('auth');
+        return view('dashboard.siswa.index');
     }
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function index()
+    public function adminDashboard()
     {
-        return view('home');
+        return view('dashboard.admin.index');
+    }
+
+    public function guruDashboard()
+    {
+        return view('dashboard.guru.index');
     }
 }

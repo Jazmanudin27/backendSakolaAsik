@@ -9,8 +9,8 @@
 
     <!-- Tab Navigation -->
     <div class="tab-navigation text-center mb-4">
-        @if($userRole === 'admin')
-        <button class="tab-btn active" data-tab="data-master">📊 Data Master</button>
+        @if ($userRole === 'admin')
+            <button class="tab-btn active" data-tab="data-master">📊 Data Master</button>
         @endif
         <button class="tab-btn {{ $userRole !== 'admin' ? 'active' : '' }}" data-tab="learning">📚 Learning</button>
         <button class="tab-btn" data-tab="laporan">📄 Laporan</button>
@@ -18,90 +18,90 @@
     </div>
 
     <!-- Tab Content: Data Master -->
-    @if($userRole === 'admin')
-    <div class="tab-content active" id="data-master">
-        <div class="row g-4 justify-content-center">
+    @if ($userRole === 'admin')
+        <div class="tab-content active" id="data-master">
+            <div class="row g-4 justify-content-center">
 
-            <div class="col-xl-2 col-lg-4 col-md-6 col-12">
-                <a href="{{ route($userRole . '.guru.index') }}" class="text-decoration-none">
-                    <div class="menu-card card-guru">
-                        <div class="card-body">
-                            <div class="icon-wrapper">
-                                <i class="fas fa-chalkboard-teacher"></i>
+                <div class="col-xl-2 col-lg-3 col-md-4 col-6 mb-4">
+                    <a href="{{ route($userRole . '.guru.index') }}" class="text-decoration-none">
+                        <div class="menu-card card-guru">
+                            <div class="card-body">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                </div>
+                                <h6>Data Guru</h6>
                             </div>
-                            <h6>Data Guru</h6>
                         </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
 
-            <div class="col-xl-2 col-lg-4 col-md-6 col-12">
-                <a href="{{ route($userRole . '.siswa.index') }}" class="text-decoration-none">
-                    <div class="menu-card card-siswa">
-                        <div class="card-body">
-                            <div class="icon-wrapper">
-                                <i class="fas fa-user-graduate"></i>
+                <div class="col-xl-2 col-lg-4 col-md-6 col-12">
+                    <a href="{{ route($userRole . '.siswa.index') }}" class="text-decoration-none">
+                        <div class="menu-card card-siswa">
+                            <div class="card-body">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <h6>Data Siswa</h6>
                             </div>
-                            <h6>Data Siswa</h6>
                         </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
 
-            <div class="col-xl-2 col-lg-4 col-md-6 col-12">
-                <a href="{{ route($userRole . '.kelas.index') }}" class="text-decoration-none">
-                    <div class="menu-card card-kelas">
-                        <div class="card-body">
-                            <div class="icon-wrapper">
-                                <i class="fas fa-school"></i>
+                <div class="col-xl-2 col-lg-4 col-md-6 col-12">
+                    <a href="{{ route($userRole . '.kelas.index') }}" class="text-decoration-none">
+                        <div class="menu-card card-kelas">
+                            <div class="card-body">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-school"></i>
+                                </div>
+                                <h6>Data Kelas</h6>
                             </div>
-                            <h6>Data Kelas</h6>
                         </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
 
-            <div class="col-xl-2 col-lg-4 col-md-6 col-12">
-                <a href="{{ route($userRole . '.jurusan.index') }}" class="text-decoration-none">
-                    <div class="menu-card card-jurusan">
-                        <div class="card-body">
-                            <div class="icon-wrapper">
-                                <i class="fas fa-layer-group"></i>
+                <div class="col-xl-2 col-lg-4 col-md-6 col-12">
+                    <a href="{{ route($userRole . '.jurusan.index') }}" class="text-decoration-none">
+                        <div class="menu-card card-jurusan">
+                            <div class="card-body">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-layer-group"></i>
+                                </div>
+                                <h6>Jurusan</h6>
                             </div>
-                            <h6>Jurusan</h6>
                         </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
 
-            <div class="col-xl-2 col-lg-4 col-md-6 col-12">
-                <a href="{{ route($userRole . '.mapel.index') }}" class="text-decoration-none">
-                    <div class="menu-card card-mapel">
-                        <div class="card-body">
-                            <div class="icon-wrapper">
-                                <i class="fas fa-book"></i>
+                <div class="col-xl-2 col-lg-4 col-md-6 col-12">
+                    <a href="{{ route($userRole . '.mapel.index') }}" class="text-decoration-none">
+                        <div class="menu-card card-mapel">
+                            <div class="card-body">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <h6>Mata Pelajaran</h6>
                             </div>
-                            <h6>Mata Pelajaran</h6>
                         </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
 
-            <div class="col-xl-2 col-lg-4 col-md-6 col-12">
-                <a href="{{ route($userRole . '.tahun_ajaran.index') }}" class="text-decoration-none">
-                    <div class="menu-card card-tahun">
-                        <div class="card-body">
-                            <div class="icon-wrapper">
-                                <i class="fas fa-calendar-alt"></i>
+                <div class="col-xl-2 col-lg-4 col-md-6 col-12">
+                    <a href="{{ route($userRole . '.tahun_ajaran.index') }}" class="text-decoration-none">
+                        <div class="menu-card card-tahun">
+                            <div class="card-body">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <h6>Tahun Ajaran</h6>
                             </div>
-                            <h6>Tahun Ajaran</h6>
                         </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
 
+            </div>
         </div>
-    </div>
     @endif
 
     <!-- Tab Content: Learning -->

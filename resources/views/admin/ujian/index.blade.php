@@ -94,10 +94,6 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">Daftar Ujian</h5>
                             <div class="d-flex align-items-center gap-3">
-                                <div class="text-muted">
-                                    <small>Menampilkan {{ $ujians->count() }} ujian</small>
-                                </div>
-                                <!-- Search and Filter -->
                                 <div class="d-flex gap-2">
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text">
@@ -296,7 +292,7 @@
                                                         <p>Belum ada jadwal ujian yang tersedia</p>
                                                         <a href="{{ route($userRole . '.ujian.create') }}"
                                                             class="btn btn-sm btn-primary">
-                                                            <i class="fas fa-plus me-2"></i>Tambah Ujian
+                                                            <i class="fas fa-plus me-2"></i>Tambah
                                                         </a>
                                                     </div>
                                                 </td>
