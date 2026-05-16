@@ -11,7 +11,7 @@
                         <p class="text-muted mb-0">Kelola jadwal dan soal ujian sekolah</p>
                     </div>
                     <a href="{{ route($userRole . '.ujian.create') }}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-plus me-2"></i>Tambah Ujian
+                        <i class="fas fa-plus me-2"></i>Tambah
                     </a>
                 </div>
             </div>
@@ -91,31 +91,27 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header bg-white">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Daftar Ujian</h5>
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="d-flex gap-2">
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text">
-                                            <i class="fas fa-search"></i>
-                                        </span>
-                                        <input type="text" class="form-control form-control-sm" id="searchInput"
-                                            placeholder="Cari ujian...">
-                                    </div>
-                                    <select class="form-select select2" id="filterTipe">
-                                        <option value="">Semua Tipe</option>
-                                        <option value="Ujian Tengah Semester">UTS</option>
-                                        <option value="Ujian Akhir Semester">UAS</option>
-                                        <option value="Ujian Tengah Tahun">UTT</option>
-                                        <option value="Ujian Akhir Tahun">UAT</option>
-                                    </select>
-                                    <select class="form-select select2" id="filterStatus">
-                                        <option value="">Semua Status</option>
-                                        <option value="Draft">Draft</option>
-                                        <option value="Aktif">Aktif</option>
-                                        <option value="Selesai">Selesai</option>
-                                    </select>
-                                </div>
+                        <div class="row g-2">
+                            <div class="col-12 col-md-6">
+                                <input type="text" class="form-control form-control-sm" id="searchInput"
+                                    placeholder="Cari ujian...">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <select class="form-select select2" id="filterTipe">
+                                    <option value="">Semua Tipe</option>
+                                    <option value="Ujian Tengah Semester">UTS</option>
+                                    <option value="Ujian Akhir Semester">UAS</option>
+                                    <option value="Ujian Tengah Tahun">UTT</option>
+                                    <option value="Ujian Akhir Tahun">UAT</option>
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <select class="form-select select2" id="filterStatus">
+                                    <option value="">Semua Status</option>
+                                    <option value="Draft">Draft</option>
+                                    <option value="Aktif">Aktif</option>
+                                    <option value="Selesai">Selesai</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -292,7 +288,7 @@
                                                         <p>Belum ada jadwal ujian yang tersedia</p>
                                                         <a href="{{ route($userRole . '.ujian.create') }}"
                                                             class="btn btn-sm btn-primary">
-                                                            <i class="fas fa-plus me-2"></i>Tambah
+                                                            <i class="fas fa-plus me-2"></i>Tambah Ujian
                                                         </a>
                                                     </div>
                                                 </td>

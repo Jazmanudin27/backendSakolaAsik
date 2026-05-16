@@ -46,12 +46,6 @@ class LoginController extends Controller
                 ->with('success', 'Login berhasil! Selamat datang ' . Auth::guard('guru')->user()->nama_guru);
         }
 
-        if (Auth::guard('guru')->attempt(['username' => $credentials['username'], 'password' => $credentials['password']])) {
-            $request->session()->regenerate();
-            return redirect()->intended('/guru/dashboard')
-                ->with('success', 'Login berhasil! Selamat datang ' . Auth::guard('guru')->user()->nama_guru);
-        }
-        
         // Try to authenticate with siswa guard using username
         if (Auth::guard('siswa')->attempt(['username' => $credentials['email'], 'password' => $credentials['password']])) {
             $request->session()->regenerate();
