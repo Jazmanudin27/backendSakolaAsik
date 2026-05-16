@@ -95,12 +95,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
             'update' => 'ujian.update',
             'destroy' => 'ujian.destroy'
         ]);
-        
+
         // Ujian Detail Routes
         Route::get('ujian/{id}/create-soal', [UjianController::class, 'createSoal'])->name('ujian.create-soal');
         Route::post('ujian/{id}/store-soal', [UjianController::class, 'storeSoal'])->name('ujian.store-soal');
         Route::get('ujian/{id}/edit-soal/{soalId}', [UjianController::class, 'editSoal'])->name('ujian.edit-soal');
         Route::put('ujian/{id}/update-soal/{soalId}', [UjianController::class, 'updateSoal'])->name('ujian.update-soal');
+        Route::put('ujian/{id}/update-tipe/{soalId}', [UjianController::class, 'updateTipe'])->name('ujian.update-tipe');
         Route::put('ujian/{id}/update-kunci/{soalId}', [UjianController::class, 'updateKunci'])->name('ujian.update-kunci');
         Route::put('ujian/{id}/activate', [UjianController::class, 'activate'])->name('ujian.activate');
         Route::delete('ujian/{id}/destroy-soal/{soalId}', [UjianController::class, 'destroySoal'])->name('ujian.destroy-soal');
@@ -242,12 +243,13 @@ Route::prefix('guru')->name('guru.')->group(function () {
             'update' => 'ujian.update',
             'destroy' => 'ujian.destroy'
         ]);
-        
+
         // Ujian Detail Routes
         Route::get('ujian/{id}/create-soal', [UjianController::class, 'createSoal'])->name('ujian.create-soal');
         Route::post('ujian/{id}/store-soal', [UjianController::class, 'storeSoal'])->name('ujian.store-soal');
         Route::get('ujian/{id}/edit-soal/{soalId}', [UjianController::class, 'editSoal'])->name('ujian.edit-soal');
         Route::put('ujian/{id}/update-soal/{soalId}', [UjianController::class, 'updateSoal'])->name('ujian.update-soal');
+        Route::put('ujian/{id}/update-tipe/{soalId}', [UjianController::class, 'updateTipe'])->name('ujian.update-tipe');
         Route::put('ujian/{id}/update-kunci/{soalId}', [UjianController::class, 'updateKunci'])->name('ujian.update-kunci');
         Route::put('ujian/{id}/activate', [UjianController::class, 'activate'])->name('ujian.activate');
         Route::delete('ujian/{id}/destroy-soal/{soalId}', [UjianController::class, 'destroySoal'])->name('ujian.destroy-soal');

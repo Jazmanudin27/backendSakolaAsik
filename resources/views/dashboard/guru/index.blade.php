@@ -10,6 +10,10 @@
         @php
             $userRoleGuru = 'admin';
         @endphp
+    @else
+        @php
+            $userRoleGuru = 'guru';
+        @endphp
     @endif
     <!-- Tab Navigation -->
     <div class="tab-navigation text-center mb-2">

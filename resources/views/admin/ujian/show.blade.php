@@ -321,6 +321,7 @@
                                             <tr>
                                                 <th class="text-center" style="width: 50px;">No</th>
                                                 <th>Soal</th>
+                                                <th class="text-center" style="width: 150px;">Tipe Soal</th>
                                                 <th class="text-center" style="width: 150px;">Kunci Jawaban</th>
                                                 <th class="text-center" style="width: 120px;">Aksi</th>
                                             </tr>
@@ -345,6 +346,20 @@
                                                                 </small>
                                                             </div>
                                                         </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <form
+                                                            action="{{ route($userRole . '.ujian.update-tipe', [$ujian->id, $soal->id]) }}"
+                                                            method="POST" class="d-inline update-tipe-form">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <select name="tipe_soal" class="form-select select2">
+                                                                <option value="pilihan_ganda" {{ $soal->tipe_soal == 'pilihan_ganda' ? 'selected' : '' }}>Pilihan Ganda</option>
+                                                                <option value="essay" {{ $soal->tipe_soal == 'essay' ? 'selected' : '' }}>Essay</option>
+                                                                <option value="benar_salah" {{ $soal->tipe_soal == 'benar_salah' ? 'selected' : '' }}>Benar/Salah</option>
+                                                                <option value="isian_singkat" {{ $soal->tipe_soal == 'isian_singkat' ? 'selected' : '' }}>Isian Singkat</option>
+                                                            </select>
+                                                        </form>
                                                     </td>
                                                     <td class="text-center">
                                                         @if ($soal->tipe_soal == 'essay')
@@ -445,6 +460,80 @@
         </div>
     </div>
     <script>
+        // UPDATE TIPE SOAL AJAX
+        $('.update-tipe-form').on('change', 'select', function() {
+            var form = $(this).closest('form');
+            var selectElement = $(this);
+            var originalValue = selectElement.find('option:selected').text();
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'PUT',
+                data: form.serialize() + '&_token={{ csrf_token() }}',
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message ?? 'Tipe soal berhasil diperbarui',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                },
+                error: function(xhr) {
+                    // Revert to original value on error
+                    selectElement.val(selectElement.find('option').first().val());
+
+                    let message = 'Terjadi kesalahan';
+                    if (xhr.responseJSON?.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: message
+                    });
+                }
+            });
+        });
+
+        // UPDATE KUNCI JAWABAN AJAX
+        $('.update-kunci-form').on('change', 'select, input', function() {
+            var form = $(this).closest('form');
+            var inputElement = $(this);
+            var originalValue = inputElement.val();
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'PUT',
+                data: form.serialize() + '&_token={{ csrf_token() }}',
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message ?? 'Kunci jawaban berhasil diperbarui',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                },
+                error: function(xhr) {
+                    // Revert to original value on error
+                    inputElement.val(originalValue);
+
+                    let message = 'Terjadi kesalahan';
+                    if (xhr.responseJSON?.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: message
+                    });
+                }
+            });
+        });
+
         // GENERATE QUESTIONS AJAX
         $('#generateQuestionsForm').on('submit', function(e) {
             e.preventDefault();

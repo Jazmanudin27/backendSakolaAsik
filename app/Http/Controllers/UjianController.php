@@ -464,6 +464,29 @@ class UjianController extends SekolahAwareController
     }
 
     /**
+     * Update tipe soal.
+     */
+    public function updateTipe(Request $request, string $id, string $soalId)
+    {
+        $soal = DetailUjian::findOrFail($soalId);
+
+        $request->validate([
+            'tipe_soal' => 'required|string|in:pilihan_ganda,essay,benar_salah,isian_singkat',
+        ]);
+
+        $soal->update([
+            'tipe_soal' => $request->tipe_soal
+        ]);
+
+        // Always return JSON response to prevent page reload
+        return response()->json([
+            'success' => true,
+            'message' => 'Tipe soal berhasil diperbarui.',
+            'tipe_soal' => $request->tipe_soal
+        ]);
+    }
+
+    /**
      * Activate exam.
      */
     public function activate(Request $request, string $id)
