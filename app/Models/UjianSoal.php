@@ -25,4 +25,9 @@ class UjianSoal extends Model
     {
         return $this->belongsTo(Ujian::class, 'id_ujian');
     }
+
+    public function pilihanGanda()
+    {
+        return $this->hasMany(DetailUjian::class, 'id_ujian');
+    }
 }

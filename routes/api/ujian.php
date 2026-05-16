@@ -28,10 +28,4 @@ Route::middleware('auth:sanctum')->prefix('siswa')->group(function () {
     // Submit final exam answers
     Route::post('/ujian/{ujianId}/submit', [UjianController::class, 'submit']);
 
-    // Get exam results
-    Route::get('/ujian/results', [SiswaUjianController::class, 'results']);
-
-    // Get detailed exam result
-    Route::get('/ujian/results/{resultId}', [SiswaUjianController::class, 'detailResult']);
-
 });

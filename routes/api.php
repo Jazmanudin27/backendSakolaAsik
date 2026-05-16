@@ -50,6 +50,7 @@ Route::prefix('v1')->group(function () {
             // Ujian API routes
             Route::prefix('ujian')->group(function () {
                 Route::get('/results', [SiswaUjianController::class, 'results']);
+                Route::get('/results/{resultId}', [SiswaUjianController::class, 'detailResult']);
                 Route::get('/', [SiswaUjianController::class, 'index']);
                 Route::get('/{id}', [SiswaUjianController::class, 'show']);
                 Route::post('/{id}/start', [SiswaUjianController::class, 'start']);

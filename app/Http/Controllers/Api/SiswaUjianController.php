@@ -8,6 +8,7 @@ use App\Models\DetailUjian;
 use App\Models\UjianSoal;
 use App\Models\JawabanSiswa;
 use App\Models\Kelas;
+use App\Models\TahunAjaran;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -541,49 +542,91 @@ class SiswaUjianController extends Controller
     public function results()
     {
         try {
+
             $siswa = Auth::user();
-            
-            $results = JawabanSiswa::with(['ujian.mapel', 'ujian.tahunPelajaran'])
+
+            $results = JawabanSiswa::with([
+                    'ujian.mapel',
+                    'ujian.tahunPelajaran',
+                    'detailJawaban.detailUjian'
+                ])
                 ->where('id_siswa', $siswa->kode_siswa)
                 ->where('status', 'submitted')
                 ->orderBy('created_at', 'desc')
                 ->get();
-            
-            $formattedResults = $results->map(function($result) {
+
+            $tahunAjaran = TahunAjaran::where('id_sekolah', $siswa->id_sekolah)
+                ->where('status', 'Aktif')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $formattedResults = $results->map(function ($result) {
+                // Calculate total score
+                $totalScore = 0;
+                $maxScore = 0;
+                $correctAnswers = 0;
+                $totalQuestions = 0;
+
+                foreach ($result->detailJawaban as $detailJawaban) {
+                    if ($detailJawaban->detailUjian) {
+                        $totalQuestions++;
+                        $maxScore += $detailJawaban->detailUjian->bobot ?? 1;
+
+                        if ($detailJawaban->benar) {
+                            $totalScore += $detailJawaban->detailUjian->bobot ?? 1;
+                            $correctAnswers++;
+                        }
+                    }
+                }
+
+                $percentage = $totalQuestions > 0 ? round(($totalScore / $totalQuestions), 2) : 0;
+
                 return [
                     'id' => $result->id,
+
                     'ujian' => [
                         'id' => $result->ujian->id,
                         'kode_ujian' => $result->ujian->kode_ujian,
-                        'nama_ujian' => $result->ujian->kode_ujian,
+                        'nama_ujian' => $result->ujian->nama_ujian ?? $result->ujian->kode_ujian,
+                        'jenis_ujian' => $result->ujian->jenis_ujian,
+                        'id_tahun_ajaran' => $result->ujian->id_tahun_ajaran,
                         'mapel' => [
                             'nama_mapel' => $result->ujian->mapel->nama_mapel ?? null,
                         ],
                         'tahunPelajaran' => [
+                            'id' => $result->ujian->tahunPelajaran->id ?? null,
                             'nama_tahun' => $result->ujian->tahunPelajaran->nama_tahun ?? null,
                         ],
                         'tanggal_ujian' => $result->ujian->tanggal_ujian,
-                        'durasi' => $result->ujian->durasi
+                        'durasi' => $result->ujian->durasi,
                     ],
+
                     'nilai' => $result->nilai ?? 0,
                     'waktu_mulai' => $result->waktu_mulai,
                     'waktu_selesai' => $result->waktu_selesai,
                     'status' => $result->status,
-                    'submission_time' => $result->waktu_selesai ? $result->waktu_selesai->format('d F Y H:i') : null
+                    'status_nilai' => $result->status_nilai,
+                    'total_score' => $totalScore,
+                    'max_score' => $maxScore,
+                    'correct_answers' => $correctAnswers,
+                    'total_questions' => $totalQuestions,
+                    'percentage' => $percentage,
                 ];
             });
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data hasil ujian berhasil diambil',
+
                 'data' => [
                     'results' => $formattedResults,
+                    'tahun_ajaran' => $tahunAjaran,
                     'total_exams' => $formattedResults->count()
                 ]
             ]);
-            
+
         } catch (\Exception $e) {
-            Log::error('Error in SiswaUjianController@results: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data hasil ujian',
@@ -600,7 +643,12 @@ class SiswaUjianController extends Controller
         try {
             $siswa = Auth::user();
 
-            $jawabanSiswa = JawabanSiswa::with(['ujian.mapel', 'ujian.tahunPelajaran'])
+            $jawabanSiswa = JawabanSiswa::with([
+                'ujian.mapel',
+                'ujian.tahunPelajaran',
+                'ujian.detailUjians',
+                'detailJawaban.detailUjian'
+            ])
                 ->where('id', $resultId)
                 ->where('id_siswa', $siswa->kode_siswa)
                 ->first();
@@ -612,46 +660,68 @@ class SiswaUjianController extends Controller
                 ], 404);
             }
 
-            // Get exam questions with correct answers
-            $soals = UjianSoal::where('id_ujian', $jawabanSiswa->id_ujian)
-                ->with(['pilihanGanda'])
-                ->get();
-
-            // Get student's answers
-            $jawabanDetail = DB::table('detail_jawaban_siswa')
-                ->where('id_jawaban_siswa', $jawabanSiswa->id)
-                ->get();
-
-            // Format the response
-            $formattedSoals = $soals->map(function($soal) use ($jawabanDetail) {
-                $studentAnswer = $jawabanDetail->firstWhere('id_soal', $soal->id);
-                $isCorrect = false;
-                $studentAnswerText = null;
-
-                if ($studentAnswer) {
-                    $studentAnswerText = $studentAnswer->jawaban;
-                    // Check if answer is correct
-                    $correctAnswer = $soal->pilihanGanda->firstWhere('is_benar', true);
-                    if ($correctAnswer && $studentAnswerText === $correctAnswer->id) {
-                        $isCorrect = true;
-                    }
-                }
+            // Format soal + jawaban
+            $formattedSoals = $jawabanSiswa->detailJawaban->map(function ($detailJawaban) {
+                $soal = $detailJawaban->detailUjian;
 
                 return [
-                    'id' => $soal->id,
-                    'pertanyaan' => $soal->pertanyaan,
-                    'tipe_soal' => $soal->tipe_soal,
-                    'pilihan_ganda' => $soal->pilihanGanda->map(function($pilihan) {
-                        return [
-                            'id' => $pilihan->id,
-                            'teks_pilihan' => $pilihan->teks_pilihan,
-                            'is_benar' => $pilihan->is_benar
-                        ];
-                    }),
-                    'jawaban_siswa' => $studentAnswerText,
-                    'is_correct' => $isCorrect
+                    'id' => $soal->id ?? null,
+                    'pertanyaan' => $soal->pertanyaan ?? '',
+                    'tipe_soal' => $soal->tipe_soal ?? 'pilihan_ganda',
+                    'pilihan_ganda' => $soal ? [
+                        [
+                            'id' => 'A',
+                            'teks_pilihan' => $soal->pilihan_a ?? '',
+                            'is_benar' => $soal->jawaban_benar === 'A'
+                        ],
+                        [
+                            'id' => 'B',
+                            'teks_pilihan' => $soal->pilihan_b ?? '',
+                            'is_benar' => $soal->jawaban_benar === 'B'
+                        ],
+                        [
+                            'id' => 'C',
+                            'teks_pilihan' => $soal->pilihan_c ?? '',
+                            'is_benar' => $soal->jawaban_benar === 'C'
+                        ],
+                        [
+                            'id' => 'D',
+                            'teks_pilihan' => $soal->pilihan_d ?? '',
+                            'is_benar' => $soal->jawaban_benar === 'D'
+                        ],
+                        [
+                            'id' => 'E',
+                            'teks_pilihan' => $soal->pilihan_e ?? '',
+                            'is_benar' => $soal->jawaban_benar === 'E'
+                        ],
+                    ] : [],
+                    'jawaban_siswa' => $detailJawaban->jawaban ?? null,
+                    'is_correct' => $detailJawaban->benar ?? false
                 ];
             });
+
+            // HITUNG NILAI (SAMA SEPERTI RESULTS)
+            $totalScore = 0;
+            $totalQuestions = 0;
+            $benar = 0;
+            $salah = 0;
+
+            foreach ($jawabanSiswa->detailJawaban as $detailJawaban) {
+                if ($detailJawaban->detailUjian) {
+                    $totalQuestions++;
+
+                    if ($detailJawaban->benar) {
+                        $totalScore += $detailJawaban->detailUjian->bobot ?? 1;
+                        $benar++;
+                    } else {
+                        $salah++;
+                    }
+                }
+            }
+
+            $percentage = $totalQuestions > 0
+                ? round(($totalScore / $totalQuestions), 2)
+                : 0;
 
             return response()->json([
                 'success' => true,
@@ -660,25 +730,33 @@ class SiswaUjianController extends Controller
                     'ujian' => [
                         'id' => $jawabanSiswa->ujian->id,
                         'kode_ujian' => $jawabanSiswa->ujian->kode_ujian,
-                        'nama_ujian' => $jawabanSiswa->ujian->kode_ujian,
+                        'nama_ujian' => $jawabanSiswa->ujian->nama_ujian ?? $jawabanSiswa->ujian->kode_ujian,
                         'mapel' => [
                             'nama_mapel' => $jawabanSiswa->ujian->mapel->nama_mapel ?? null,
                         ],
                         'tanggal_ujian' => $jawabanSiswa->ujian->tanggal_ujian,
                         'durasi' => $jawabanSiswa->ujian->durasi
                     ],
-                    'nilai' => $jawabanSiswa->nilai ?? 0,
+
+                    // 🔥 INI SUDAH SAMA DENGAN RESULTS
+                    'nilai' => $percentage,
+
                     'waktu_mulai' => $jawabanSiswa->waktu_mulai,
                     'waktu_selesai' => $jawabanSiswa->waktu_selesai,
                     'soals' => $formattedSoals,
-                    'total_soal' => $formattedSoals->count(),
-                    'benar' => $formattedSoals->where('is_correct', true)->count(),
-                    'salah' => $formattedSoals->where('is_correct', false)->count()
+
+                    'total_soal' => $totalQuestions,
+                    'benar' => $benar,
+                    'salah' => $salah,
+
+                    // optional biar fleksibel di frontend
+                    'percentage' => $percentage
                 ]
             ]);
 
         } catch (\Exception $e) {
             Log::error('Error in SiswaUjianController@detailResult: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data detail hasil ujian',

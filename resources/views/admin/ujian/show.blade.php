@@ -13,13 +13,13 @@
                         <p class="text-muted mb-0">Informasi lengkap ujian: {{ $ujian->kode_ujian }}</p>
                     </div>
                     <div class="btn-group">
-                        <a href="{{ route('admin.ujian.create-soal', $ujian->id) }}" class="btn btn-sm btn-success">
+                        <a href="{{ route($userRole . '.ujian.create-soal', $ujian->id) }}" class="btn btn-sm btn-success">
                             <i class="fas fa-plus me-2"></i>Tambah Soal
                         </a>
-                        <a href="{{ route('admin.ujian.edit', $ujian->id) }}" class="btn btn-sm btn-warning">
+                        <a href="{{ route($userRole . '.ujian.edit', $ujian->id) }}" class="btn btn-sm btn-warning">
                             <i class="fas fa-edit me-2"></i>Edit Ujian
                         </a>
-                        <a href="{{ route('admin.ujian.index') }}" class="btn btn-sm btn-secondary">
+                        <a href="{{ route($userRole . '.ujian.index') }}" class="btn btn-sm btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Kembali
                         </a>
                     </div>
@@ -463,7 +463,7 @@
                 if (result.isConfirmed) {
 
                     $.ajax({
-                        url: "{{ route('admin.ujian.generate-questions', $ujian->id) }}",
+                        url: "{{ route($userRole.'.ujian.generate-questions', $ujian->id) }}",
                         type: "POST",
                         data: {
                             _token: "{{ csrf_token() }}",
