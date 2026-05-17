@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Kelas;
 use App\Models\Jurusan;
+use App\Helpers\UserRoleHelper;
 
 class AdminKelasController extends SekolahAwareController
 {
@@ -56,7 +57,7 @@ class AdminKelasController extends SekolahAwareController
         }
         Kelas::create($data);
 
-        return redirect()->route('admin.kelas.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.kelas.index')
             ->with('success', 'Data kelas berhasil ditambahkan!');
     }
 
@@ -100,7 +101,7 @@ class AdminKelasController extends SekolahAwareController
 
         $kelas->update($request->all());
 
-        return redirect()->route('admin.kelas.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.kelas.index')
             ->with('success', 'Data kelas berhasil diperbarui!');
     }
 
@@ -112,7 +113,7 @@ class AdminKelasController extends SekolahAwareController
         $kelas = $this->addSekolahFilter(Kelas::findOrFail($id), Kelas::class);
         $kelas->delete();
 
-        return redirect()->route('admin.kelas.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.kelas.index')
             ->with('success', 'Data kelas berhasil dihapus!');
     }
 }

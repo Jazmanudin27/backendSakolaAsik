@@ -9,6 +9,7 @@ use App\Models\Kelas;
 use App\Models\JawabanSiswa;
 use App\Models\Ujian;
 use Illuminate\Http\Request;
+use App\Helpers\UserRoleHelper;
 
 class LaporanController extends SekolahAwareController
 {
@@ -243,5 +244,76 @@ class LaporanController extends SekolahAwareController
         // Placeholder for pembayaran logic
         // You can implement payment tracking here
         return view('admin.laporan.pembayaran');
+    }
+
+    /**
+     * Laporan Kartu Ujian
+     */
+    public function kartuUjian(Request $request)
+    {
+        $query = $this->addSekolahFilter(Siswa::with('kelas', 'sekolah'), Siswa::class);
+
+        // Filter by kelas
+        if ($request->filled('kelas')) {
+            $query->where('kode_kelas', $request->kelas);
+        }
+
+        // Filter by ujian
+        if ($request->filled('ujian')) {
+            $query->whereHas('kelas', function($q) use ($request) {
+                $q->where('tingkat', Ujian::where('kode_ujian', $request->ujian)->value('tingkat'));
+            });
+        }
+
+        $siswa = $query->latest()->get();
+        $kelas = $this->getSekolahOptions(Kelas::query(), Kelas::class)->get();
+        $ujian = $this->getSekolahOptions(Ujian::query(), Ujian::class)->get();
+
+        $selectedKelas = null;
+        $selectedUjian = null;
+
+        if ($request->filled('kelas')) {
+            $selectedKelas = Kelas::where('kode_kelas', $request->kelas)->first();
+        }
+
+        if ($request->filled('ujian')) {
+            $selectedUjian = Ujian::where('kode_ujian', $request->ujian)->first();
+        }
+
+        return view('admin.laporan.kartu-ujian', compact('siswa', 'kelas', 'ujian', 'selectedKelas', 'selectedUjian'));
+    }
+
+    /**
+     * Print Kartu Ujian
+     */
+    public function printKartuUjian(Request $request)
+    {
+        $query = $this->addSekolahFilter(Siswa::with('kelas', 'sekolah'), Siswa::class);
+
+        // Filter by kelas
+        if ($request->filled('kelas')) {
+            $query->where('kode_kelas', $request->kelas);
+        }
+
+        // Filter by ujian
+        if ($request->filled('ujian')) {
+            $query->whereHas('kelas', function($q) use ($request) {
+                $q->where('tingkat', Ujian::where('kode_ujian', $request->ujian)->value('tingkat'));
+            });
+        }
+
+        $siswa = $query->latest()->get();
+        $selectedKelas = null;
+        $selectedUjian = null;
+
+        if ($request->filled('kelas')) {
+            $selectedKelas = Kelas::where('kode_kelas', $request->kelas)->first();
+        }
+
+        if ($request->filled('ujian')) {
+            $selectedUjian = Ujian::where('kode_ujian', $request->ujian)->first();
+        }
+
+        return view('admin.laporan.kartu-ujian-print', compact('siswa', 'selectedKelas', 'selectedUjian'));
     }
 }

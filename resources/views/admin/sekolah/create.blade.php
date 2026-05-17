@@ -26,7 +26,7 @@
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <form action="{{ route($userRole . '.sekolah.store') }}" method="POST" autocomplete="off">
+                    <form action="{{ route($userRole . '.sekolah.store') }}" method="POST" autocomplete="off" enctype="multipart/form-data">
                         @csrf
                         
                         <!-- Informasi Dasar -->
@@ -84,6 +84,15 @@
                                     @error('jenjang')
                                         <div class="text-danger small mt-1">{{ $message }}</div>
                                     @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Logo Sekolah</label>
+                                    <input type="file" name="logo" class="form-control form-control-sm" accept="image/jpeg,image/png,image/jpg,image/gif,image/svg">
+                                    @error('logo')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                    <small class="text-muted">Format: JPEG, PNG, JPG, GIF, SVG (Max: 2MB)</small>
                                 </div>
                             </div>
 

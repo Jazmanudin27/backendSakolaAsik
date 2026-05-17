@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TahunAjaran;
+use App\Helpers\UserRoleHelper;
 
 class AdminTahunAjaranController extends SekolahAwareController
 {
@@ -46,7 +47,7 @@ class AdminTahunAjaranController extends SekolahAwareController
         }
         TahunAjaran::create($tahunAjaranData);
 
-        return redirect()->route('admin.tahun_ajaran.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.tahun_ajaran.index')
             ->with('success', 'Tahun ajaran berhasil ditambahkan!');
     }
 
@@ -86,7 +87,7 @@ class AdminTahunAjaranController extends SekolahAwareController
 
         $tahunAjaran->update($request->all());
 
-        return redirect()->route('admin.tahun_ajaran.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.tahun_ajaran.index')
             ->with('success', 'Tahun ajaran berhasil diperbarui!');
     }
 
@@ -98,7 +99,7 @@ class AdminTahunAjaranController extends SekolahAwareController
         $tahunAjaran = $this->addSekolahFilter(TahunAjaran::query(), TahunAjaran::class)->findOrFail($id);
         $tahunAjaran->delete();
 
-        return redirect()->route('admin.tahun_ajaran.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.tahun_ajaran.index')
             ->with('success', 'Tahun ajaran berhasil dihapus!');
     }
 }

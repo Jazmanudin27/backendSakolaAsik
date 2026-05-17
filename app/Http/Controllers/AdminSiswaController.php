@@ -9,12 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use App\Helpers\UserRoleHelper;
 
 class AdminSiswaController extends SekolahAwareController
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index(Request $request)
     {
         $query = $this->addSekolahFilter(Siswa::with('sekolah', 'kelas'), Siswa::class);
@@ -113,7 +112,7 @@ class AdminSiswaController extends SekolahAwareController
         }
         Siswa::create($data);
 
-        return redirect()->route('admin.siswa.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.siswa.index')
             ->with('success', 'Data siswa berhasil ditambahkan!');
     }
 
@@ -201,7 +200,7 @@ class AdminSiswaController extends SekolahAwareController
 
         $siswa->update($data);
 
-        return redirect()->route('admin.siswa.index')
+        return redirect()->route(userRole().'.siswa.index')
             ->with('success', 'Data siswa berhasil diperbarui!');
     }
 
@@ -213,7 +212,7 @@ class AdminSiswaController extends SekolahAwareController
         $siswa = $this->addSekolahFilter(Siswa::query(), Siswa::class)->findOrFail($id);
         $siswa->delete();
 
-        return redirect()->route('admin.siswa.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.siswa.index')
             ->with('success', 'Data siswa berhasil dihapus!');
     }
 }

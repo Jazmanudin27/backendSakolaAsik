@@ -6,6 +6,7 @@ use App\Http\Controllers\SekolahAwareController;
 use App\Models\Guru;
 use App\Models\Sekolah;
 use Illuminate\Http\Request;
+use App\Helpers\UserRoleHelper;
 
 class AdminGuruController extends SekolahAwareController
 {
@@ -56,7 +57,7 @@ class AdminGuruController extends SekolahAwareController
         }
         Guru::create($guruData);
 
-        return redirect()->route('admin.guru.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.guru.index')
             ->with('success', 'Data guru berhasil ditambahkan!');
     }
 
@@ -104,7 +105,7 @@ class AdminGuruController extends SekolahAwareController
 
         $guru->update($request->all());
 
-        return redirect()->route('admin.guru.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.guru.index')
             ->with('success', 'Data guru berhasil diperbarui!');
     }
 
@@ -116,7 +117,7 @@ class AdminGuruController extends SekolahAwareController
         $guru = $this->addSekolahFilter(Guru::query(), Guru::class)->findOrFail($id);
         $guru->delete();
 
-        return redirect()->route('admin.guru.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.guru.index')
             ->with('success', 'Data guru berhasil dihapus!');
     }
 }

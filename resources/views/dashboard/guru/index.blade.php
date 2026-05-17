@@ -166,6 +166,22 @@
                 </a>
             </div>
 
+            <div class="col-xl-2 col-lg-3 col-md-4 col-6 mb-2">
+                <a href="{{ route($userRole . '.kartu-ujian.index') }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm text-center h-100 rounded-4">
+                        <div class="card-body py-4">
+                            <div class="mb-2">
+                                <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center"
+                                    style="width:90px;height:90px;">
+                                    <i class="fas fa-id-card fa-3x text-warning"></i>
+                                </div>
+                            </div>
+                            <h6 class="mb-0 text-dark">Kartu Ujian</h6>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
         </div>
     </div>
 
@@ -264,6 +280,22 @@
                                 </div>
                             </div>
                             <h6 class="mb-0 text-dark">Laporan Nilai</h6>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-2 col-lg-3 col-md-4 col-6 mb-2">
+                <a href="{{ route($userRole . '.laporan.kartu-ujian') }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm text-center h-100 rounded-4">
+                        <div class="card-body py-4">
+                            <div class="mb-2">
+                                <div class="bg-dark bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center"
+                                    style="width:90px;height:90px;">
+                                    <i class="fas fa-id-card fa-3x text-dark"></i>
+                                </div>
+                            </div>
+                            <h6 class="mb-0 text-dark">Cetak Kartu Ujian</h6>
                         </div>
                     </div>
                 </a>

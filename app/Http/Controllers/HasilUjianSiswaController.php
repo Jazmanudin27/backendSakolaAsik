@@ -10,6 +10,7 @@ use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\UserRoleHelper;
 
 class HasilUjianSiswaController extends SekolahAwareController
 {
@@ -295,7 +296,7 @@ class HasilUjianSiswaController extends SekolahAwareController
             ]);
         }
 
-        return redirect()->route('admin.hasil-ujian.show', $id)
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.hasil-ujian.show', $id)
             ->with('success', 'Nilai esai berhasil disimpan!');
     }
 

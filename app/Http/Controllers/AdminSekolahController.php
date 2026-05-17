@@ -6,6 +6,7 @@ use App\Http\Controllers\SekolahAwareController;
 use App\Models\Sekolah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Helpers\UserRoleHelper;
 
 class AdminSekolahController extends SekolahAwareController
 {
@@ -66,6 +67,7 @@ class AdminSekolahController extends SekolahAwareController
             'status' => 'required|string|max:50',
             'kabupaten_kota' => 'required|string|max:100',
             'provinsi' => 'required|string|max:100',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -74,7 +76,26 @@ class AdminSekolahController extends SekolahAwareController
                 ->withInput();
         }
 
-        Sekolah::create($request->all());
+        $data = $request->all();
+
+        // Handle logo upload
+        if ($request->hasFile('logo')) {
+            $logo = $request->file('logo');
+            $logoName = time() . '_' . uniqid() . '.' . $logo->getClientOriginalExtension();
+
+            // Create directory if not exists
+            if (!is_dir(public_path('storage/sekolah'))) {
+                mkdir(public_path('storage/sekolah'), 0755, true);
+            }
+
+            $logo->move(public_path('storage/sekolah'), $logoName);
+            $data['logo'] = $logoName;
+        } else {
+            // Remove logo from data if no file uploaded
+            unset($data['logo']);
+        }
+
+        Sekolah::create($data);
 
         return redirect()->route('admin.sekolah.index')
             ->with('success', 'Data sekolah berhasil ditambahkan!');
@@ -117,6 +138,7 @@ class AdminSekolahController extends SekolahAwareController
             'status' => 'required|string|max:50',
             'kabupaten_kota' => 'required|string|max:100',
             'provinsi' => 'required|string|max:100',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -125,9 +147,33 @@ class AdminSekolahController extends SekolahAwareController
                 ->withInput();
         }
 
-        $sekolah->update($request->all());
+        $data = $request->all();
 
-        return redirect()->route('admin.sekolah.index')
+        // Handle logo upload
+        if ($request->hasFile('logo')) {
+            // Delete old logo if exists
+            if ($sekolah->logo && file_exists(public_path('storage/' . $sekolah->logo))) {
+                unlink(public_path('storage/' . $sekolah->logo));
+            }
+
+            $logo = $request->file('logo');
+            $logoName = time() . '_' . uniqid() . '.' . $logo->getClientOriginalExtension();
+
+            // Create directory if not exists
+            if (!is_dir(public_path('storage/sekolah'))) {
+                mkdir(public_path('storage/sekolah'), 0755, true);
+            }
+
+            $logo->move(public_path('storage/sekolah'), $logoName);
+            $data['logo'] = $logoName;
+        } else {
+            // Remove logo from data if no file uploaded (keep existing logo)
+            unset($data['logo']);
+        }
+
+        $sekolah->update($data);
+
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.sekolah.index')
             ->with('success', 'Data sekolah berhasil diperbarui!');
     }
 

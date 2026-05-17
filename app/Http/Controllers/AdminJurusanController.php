@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Jurusan;
+use App\Helpers\UserRoleHelper;
 
 class AdminJurusanController extends SekolahAwareController
 {
@@ -46,7 +47,7 @@ class AdminJurusanController extends SekolahAwareController
         }
         Jurusan::create($jurusanData);
 
-        return redirect()->route('admin.jurusan.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.jurusan.index')
             ->with('success', 'Data jurusan berhasil ditambahkan!');
     }
 
@@ -86,7 +87,7 @@ class AdminJurusanController extends SekolahAwareController
 
         $jurusan->update($request->all());
 
-        return redirect()->route('admin.jurusan.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.jurusan.index')
             ->with('success', 'Data jurusan berhasil diperbarui!');
     }
 
@@ -98,7 +99,7 @@ class AdminJurusanController extends SekolahAwareController
         $jurusan = $this->addSekolahFilter(Jurusan::query(), Jurusan::class)->findOrFail($id);
         $jurusan->delete();
 
-        return redirect()->route('admin.jurusan.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.jurusan.index')
             ->with('success', 'Data jurusan berhasil dihapus!');
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Sekolah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Helpers\UserRoleHelper;
 
 class AdminAdminController extends SekolahAwareController
 {
@@ -70,7 +71,7 @@ class AdminAdminController extends SekolahAwareController
 
         Admin::create($data);
 
-        return redirect()->route('admin.admin.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.admin.index')
             ->with('success', 'Data admin berhasil ditambahkan!');
     }
 
@@ -127,7 +128,7 @@ class AdminAdminController extends SekolahAwareController
 
         $admin->update($data);
 
-        return redirect()->route('admin.admin.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.admin.index')
             ->with('success', 'Data admin berhasil diperbarui!');
     }
 
@@ -139,7 +140,7 @@ class AdminAdminController extends SekolahAwareController
         $admin = $this->addSekolahFilter(Admin::query(), Admin::class)->findOrFail($id);
         $admin->delete();
 
-        return redirect()->route('admin.admin.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.admin.index')
             ->with('success', 'Data admin berhasil dihapus!');
     }
 }

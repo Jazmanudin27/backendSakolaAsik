@@ -130,6 +130,19 @@
                 </a>
             </div>
 
+            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                <a href="{{ route($userRole . '.kartu-ujian.index') }}" class="text-decoration-none">
+                    <div class="menu-card card-kartu-ujian">
+                        <div class="card-body">
+                            <div class="icon-wrapper">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <h6>Kartu Ujian</h6>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
         </div>
     </div>
 
@@ -210,6 +223,19 @@
                                 <i class="fas fa-chart-line"></i>
                             </div>
                             <h6>Laporan Nilai</h6>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                <a href="{{ route($userRole . '.laporan.kartu-ujian') }}" class="text-decoration-none">
+                    <div class="menu-card card-laporan">
+                        <div class="card-body">
+                            <div class="icon-wrapper">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <h6>Cetak Kartu Ujian</h6>
                         </div>
                     </div>
                 </a>

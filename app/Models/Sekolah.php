@@ -27,6 +27,7 @@ class Sekolah extends Model
         'status',
         'kabupaten_kota',
         'provinsi',
+        'logo',
     ];
 
     protected $casts = [

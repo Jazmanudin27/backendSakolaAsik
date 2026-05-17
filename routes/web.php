@@ -12,6 +12,7 @@ use App\Http\Controllers\AdminMapelController;
 use App\Http\Controllers\AdminGuruController;
 use App\Http\Controllers\AdminKelasController;
 use App\Http\Controllers\AdminJurusanController;
+use App\Http\Controllers\AdminKartuUjianController;
 use App\Http\Controllers\UjianController;
 use App\Http\Controllers\SiswaUjianController;
 use App\Http\Controllers\SiswaHasilUjianController;
@@ -181,6 +182,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
             'update' => 'jurusan.update',
             'destroy' => 'jurusan.destroy'
         ]);
+        
+        // Kartu Ujian Routes
+        Route::resource('kartu-ujian', AdminKartuUjianController::class)->names([
+            'index' => 'kartu-ujian.index',
+            'create' => 'kartu-ujian.create',
+            'store' => 'kartu-ujian.store',
+            'show' => 'kartu-ujian.show',
+            'edit' => 'kartu-ujian.edit',
+            'update' => 'kartu-ujian.update',
+            'destroy' => 'kartu-ujian.destroy'
+        ]);
+        Route::get('kartu-ujian/{id}/print', [AdminKartuUjianController::class, 'print'])->name('kartu-ujian.print');
+        Route::post('kartu-ujian/{id}/update-ruangan', [AdminKartuUjianController::class, 'updateRuangan'])->name('kartu-ujian.update-ruangan');
 
         // Laporan Routes
         Route::prefix('laporan')->name('laporan.')->group(function () {
@@ -193,6 +207,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('nilai/print', [LaporanController::class, 'nilaiPrint'])->name('nilai.print');
             Route::get('kehadiran', [LaporanController::class, 'kehadiran'])->name('kehadiran');
             Route::get('pembayaran', [LaporanController::class, 'pembayaran'])->name('pembayaran');
+            Route::get('kartu-ujian', [LaporanController::class, 'kartuUjian'])->name('kartu-ujian');
+            Route::get('kartu-ujian/print', [LaporanController::class, 'printKartuUjian'])->name('kartu-ujian.print');
         });
     });
 });
@@ -211,6 +227,19 @@ Route::prefix('guru')->name('guru.')->group(function () {
             'update' => 'sekolah.update',
             'destroy' => 'sekolah.destroy'
         ]);
+
+        
+        Route::resource('kartu-ujian', AdminKartuUjianController::class)->names([
+            'index' => 'kartu-ujian.index',
+            'create' => 'kartu-ujian.create',
+            'store' => 'kartu-ujian.store',
+            'show' => 'kartu-ujian.show',
+            'edit' => 'kartu-ujian.edit',
+            'update' => 'kartu-ujian.update',
+            'destroy' => 'kartu-ujian.destroy'
+        ]);
+        Route::get('kartu-ujian/{id}/print', [AdminKartuUjianController::class, 'print'])->name('kartu-ujian.print');
+        Route::post('kartu-ujian/{id}/update-ruangan', [AdminKartuUjianController::class, 'updateRuangan'])->name('kartu-ujian.update-ruangan');
 
         Route::resource('siswa', AdminSiswaController::class)->names([
             'index' => 'siswa.index',
@@ -318,5 +347,19 @@ Route::prefix('guru')->name('guru.')->group(function () {
             'update' => 'jurusan.update',
             'destroy' => 'jurusan.destroy'
         ]);
+
+         Route::prefix('laporan')->name('laporan.')->group(function () {
+            Route::get('siswa', [LaporanController::class, 'siswa'])->name('siswa');
+            Route::get('guru', [LaporanController::class, 'guru'])->name('guru');
+            Route::get('kelas', [LaporanController::class, 'kelas'])->name('kelas');
+            Route::get('siswa-per-kelas', [LaporanController::class, 'siswaPerKelas'])->name('siswa-per-kelas');
+            Route::get('ujian', [LaporanController::class, 'ujian'])->name('ujian');
+            Route::get('nilai', [LaporanController::class, 'nilai'])->name('nilai');
+            Route::get('nilai/print', [LaporanController::class, 'nilaiPrint'])->name('nilai.print');
+            Route::get('kehadiran', [LaporanController::class, 'kehadiran'])->name('kehadiran');
+            Route::get('pembayaran', [LaporanController::class, 'pembayaran'])->name('pembayaran');
+            Route::get('kartu-ujian', [LaporanController::class, 'kartuUjian'])->name('kartu-ujian');
+            Route::get('kartu-ujian/print', [LaporanController::class, 'printKartuUjian'])->name('kartu-ujian.print');
+        });
     });
 });

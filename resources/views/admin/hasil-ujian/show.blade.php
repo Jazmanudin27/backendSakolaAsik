@@ -29,7 +29,8 @@
                                 <i class="fas fa-edit me-2"></i>Nilai Esai
                             </a>
                         @endif
-                        <a href="{{ route($userRole . '.hasil-ujian.print', $jawabanSiswa->id) }}" class="btn btn-primary" target="_blank">
+                        <a href="{{ route($userRole . '.hasil-ujian.print', $jawabanSiswa->id) }}" class="btn btn-primary"
+                            target="_blank">
                             <i class="fas fa-print me-2"></i>Cetak
                         </a>
                     </div>

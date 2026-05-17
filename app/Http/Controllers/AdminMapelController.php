@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Mapel;
+use App\Helpers\UserRoleHelper;
 
 class AdminMapelController extends SekolahAwareController
 {
@@ -48,7 +49,7 @@ class AdminMapelController extends SekolahAwareController
         }
         Mapel::create($mapelData);
 
-        return redirect()->route('admin.mapel.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.mapel.index')
             ->with('success', 'Mata pelajaran berhasil ditambahkan!');
     }
 
@@ -90,7 +91,7 @@ class AdminMapelController extends SekolahAwareController
 
         $mapel->update($request->all());
 
-        return redirect()->route('admin.mapel.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.mapel.index')
             ->with('success', 'Mata pelajaran berhasil diperbarui!');
     }
 
@@ -102,7 +103,7 @@ class AdminMapelController extends SekolahAwareController
         $mapel = $this->addSekolahFilter(Mapel::query(), Mapel::class)->findOrFail($id);
         $mapel->delete();
 
-        return redirect()->route('admin.mapel.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.mapel.index')
             ->with('success', 'Mata pelajaran berhasil dihapus!');
     }
 }
