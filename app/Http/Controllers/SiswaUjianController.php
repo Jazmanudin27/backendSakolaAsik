@@ -195,9 +195,6 @@ class SiswaUjianController extends SekolahAwareController
         
         // Get student's class information
         $kelas = \App\Models\Kelas::find($siswa->kode_kelas);
-        $studentTingkat = $kelas ? $kelas->tingkat : null;
-        $studentJurusan = $kelas ? $kelas->id_jurusan : null;
-        
    
         // Get or create answer session
         $jawabanSiswa = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
@@ -248,19 +245,6 @@ class SiswaUjianController extends SekolahAwareController
         
         // Get student's class information
         $kelas = \App\Models\Kelas::find($siswa->kode_kelas);
-        $studentTingkat = $kelas ? $kelas->tingkat : null;
-        $studentJurusan = $kelas ? $kelas->id_jurusan : null;
-        
-        // Check if student can take this exam based on tingkat and jurusan
-        if ($ujian->tingkat != $studentTingkat) {
-            abort(403, 'Anda tidak berhak mengakses ujian ini');
-        }
-        
-        // Check jurusan access
-        if ($ujian->id_jurusan && !in_array($studentJurusan, $ujian->id_jurusan)) {
-            abort(403, 'Anda tidak berhak mengakses ujian ini');
-        }
-        
         // Get answer session
         $jawabanSiswa = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
             ->where('id_ujian', $ujian->id)
