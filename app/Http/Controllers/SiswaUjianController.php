@@ -198,16 +198,7 @@ class SiswaUjianController extends SekolahAwareController
         $studentTingkat = $kelas ? $kelas->tingkat : null;
         $studentJurusan = $kelas ? $kelas->id_jurusan : null;
         
-        // Check if student can take this exam based on tingkat and jurusan
-        if ($ujian->tingkat != $studentTingkat) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-        
-        // Check jurusan access
-        if ($ujian->id_jurusan && !in_array($studentJurusan, $ujian->id_jurusan)) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-        
+   
         // Get or create answer session
         $jawabanSiswa = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
             ->where('id_ujian', $ujian->id)
