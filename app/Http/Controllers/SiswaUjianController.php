@@ -123,11 +123,6 @@ class SiswaUjianController extends SekolahAwareController
             abort(403, 'Anda tidak berhak mengakses ujian ini');
         }
         
-        // Check jurusan access
-        if ($ujian->id_jurusan && !in_array($studentJurusan, $ujian->id_jurusan)) {
-            abort(403, 'Anda tidak berhak mengakses ujian ini');
-        }
-        
         // Check if exam is still active
         if ($ujian->status != 'Aktif') {
             abort(403, 'Ujian tidak aktif');
