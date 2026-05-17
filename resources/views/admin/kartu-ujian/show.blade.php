@@ -142,10 +142,14 @@
                                                 </td>
                                                 <td>
                                                     <div class="d-flex gap-1 align-items-center">
-                                                        <input type="text" name="ruangan" value="{{ $detail->ruangan ?? '' }}" 
-                                                            class="form-control form-control-sm ruangan-input" style="width: 100px;" 
-                                                            placeholder="Ruangan" data-id="{{ $detail->id }}" data-url="{{ route($userRole . '.kartu-ujian.update-ruangan', $detail->id) }}">
-                                                        <span class="save-status text-muted" style="font-size: 12px;"></span>
+                                                        <input type="text" name="ruangan"
+                                                            value="{{ $detail->ruangan ?? '' }}"
+                                                            class="form-control form-control-sm ruangan-input"
+                                                            style="width: 100px;" placeholder="Ruangan"
+                                                            data-id="{{ $detail->id }}"
+                                                            data-url="{{ route($userRole . '.kartu-ujian.update-ruangan', $detail->id) }}">
+                                                        <span class="save-status text-muted"
+                                                            style="font-size: 12px;"></span>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -213,81 +217,28 @@
             border-radius: 0.375rem;
             font-weight: 500;
         }
-
-        .ruangan-input {
-            transition: border-color 0.2s;
-        }
-
-        .ruangan-input.saving {
-            border-color: #ffc107;
-        }
-
-        .ruangan-input.saved {
-            border-color: #198754;
-        }
-
-        .ruangan-input.error {
-            border-color: #dc3545;
-        }
     </style>
 
     <script>
-        // Debounce function to delay API calls
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        // Auto-save function
-        const saveRuangan = debounce(async function(input) {
+        // Auto-save function - saves immediately on input change
+        async function saveRuangan(input) {
             const url = input.dataset.url;
             const value = input.value;
-            const statusSpan = input.parentElement.querySelector('.save-status');
-
-            // Show saving status
-            input.classList.add('saving');
-            statusSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
             try {
-                const response = await fetch(url, {
+                await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
+                            '{{ csrf_token() }}'
                     },
                     body: `ruangan=${encodeURIComponent(value)}&_token=${encodeURIComponent('{{ csrf_token() }}')}`
                 });
-
-                if (response.ok) {
-                    input.classList.remove('saving');
-                    input.classList.add('saved');
-                    statusSpan.innerHTML = '<i class="fas fa-check text-success"></i>';
-                    
-                    setTimeout(() => {
-                        input.classList.remove('saved');
-                        statusSpan.innerHTML = '';
-                    }, 2000);
-                } else {
-                    throw new Error('Save failed');
-                }
             } catch (error) {
-                input.classList.remove('saving');
-                input.classList.add('error');
-                statusSpan.innerHTML = '<i class="fas fa-times text-danger"></i>';
-                
-                setTimeout(() => {
-                    input.classList.remove('error');
-                    statusSpan.innerHTML = '';
-                }, 2000);
+                console.error('Save failed:', error);
             }
-        }, 800);
+        }
 
         // Attach event listeners to all ruangan inputs
         document.addEventListener('DOMContentLoaded', function() {
