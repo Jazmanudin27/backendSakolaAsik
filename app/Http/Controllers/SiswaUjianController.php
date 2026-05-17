@@ -93,12 +93,6 @@ class SiswaUjianController extends SekolahAwareController
         if ($ujian->tingkat != $studentTingkat) {
             abort(403, 'Anda tidak berhak mengakses ujian ini');
         }
-        
-        // Check jurusan access
-        if ($ujian->id_jurusan && !in_array($studentJurusan, $ujian->id_jurusan)) {
-            abort(403, 'Anda tidak berhak mengakses ujian ini');
-        }
-        
         // Check if student has already submitted
         $hasSubmitted = JawabanSiswa::where('id_siswa', $siswa->kode_siswa)
             ->where('id_ujian', $ujian->id)
