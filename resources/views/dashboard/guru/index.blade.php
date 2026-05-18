@@ -182,6 +182,22 @@
                 </a>
             </div>
 
+            <div class="col-xl-2 col-lg-3 col-md-4 col-6 mb-2">
+                <a href="{{ route($userRole . '.absensi.index') }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm text-center h-100 rounded-4">
+                        <div class="card-body py-4">
+                            <div class="mb-2">
+                                <div class="bg-purple bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center"
+                                    style="width:90px;height:90px;">
+                                    <i class="fas fa-clipboard-check fa-3x text-purple"></i>
+                                </div>
+                            </div>
+                            <h6 class="mb-0 text-dark">Absensi Siswa</h6>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
         </div>
     </div>
 

@@ -215,7 +215,6 @@
                                     <div class="sub-sekolah">
                                         {{ $s->siswa->sekolah->alamat ?? '' }}
                                     </div>
-
                                     <div class="akreditasi">
                                         {{ $s->siswa->sekolah->kabupaten_kota ?? '-' }},
                                         {{ $s->siswa->sekolah->provinsi ?? '-' }}
@@ -229,10 +228,6 @@
                             <div class="judul-kartu">
 
                                 <h5>KARTU PESERTA UJIAN</h5>
-
-                                <h5>
-                                    {{ strtoupper($selectedUjian->nama_ujian ?? 'UJIAN') }}
-                                </h5>
 
                                 <h5>
                                     {{ strtoupper('TAHUN AJARAN ' . ($selectedUjian->tahunAjaran->tahun_ajaran ?? '') . ' ' . ($selectedUjian->tahunAjaran->semester ?? '')) }}
@@ -265,6 +260,12 @@
                                     <td><strong>Ruangan</strong></td>
                                     <td>:</td>
                                     <td>{{ $s->ruangan ?? '-' }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td><strong>Password</strong></td>
+                                    <td>:</td>
+                                    <td>{{ '12345' }}</td>
                                 </tr>
 
                             </table>

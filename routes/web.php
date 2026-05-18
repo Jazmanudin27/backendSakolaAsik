@@ -13,7 +13,6 @@ use App\Http\Controllers\AdminGuruController;
 use App\Http\Controllers\AdminKelasController;
 use App\Http\Controllers\AdminJurusanController;
 use App\Http\Controllers\AdminKartuUjianController;
-use App\Http\Controllers\AdminAbsensiController;
 use App\Http\Controllers\UjianController;
 use App\Http\Controllers\SiswaUjianController;
 use App\Http\Controllers\SiswaHasilUjianController;
@@ -197,16 +196,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('kartu-ujian/{id}/print', [AdminKartuUjianController::class, 'print'])->name('kartu-ujian.print');
         Route::post('kartu-ujian/{id}/update-ruangan', [AdminKartuUjianController::class, 'updateRuangan'])->name('kartu-ujian.update-ruangan');
 
-        // Absensi Routes
-        Route::resource('absensi', AdminAbsensiController::class)->names([
-            'index' => 'absensi.index',
-            'create' => 'absensi.create',
-            'store' => 'absensi.store',
-            'show' => 'absensi.show',
-            'edit' => 'absensi.edit',
-            'update' => 'absensi.update',
-            'destroy' => 'absensi.destroy'
-        ]);
 
         // Laporan Routes
         Route::prefix('laporan')->name('laporan.')->group(function () {
@@ -253,16 +242,6 @@ Route::prefix('guru')->name('guru.')->group(function () {
         Route::get('kartu-ujian/{id}/print', [AdminKartuUjianController::class, 'print'])->name('kartu-ujian.print');
         Route::post('kartu-ujian/{id}/update-ruangan', [AdminKartuUjianController::class, 'updateRuangan'])->name('kartu-ujian.update-ruangan');
 
-        // Absensi Routes
-        Route::resource('absensi', AdminAbsensiController::class)->names([
-            'index' => 'absensi.index',
-            'create' => 'absensi.create',
-            'store' => 'absensi.store',
-            'show' => 'absensi.show',
-            'edit' => 'absensi.edit',
-            'update' => 'absensi.update',
-            'destroy' => 'absensi.destroy'
-        ]);
 
         Route::resource('siswa', AdminSiswaController::class)->names([
             'index' => 'siswa.index',
