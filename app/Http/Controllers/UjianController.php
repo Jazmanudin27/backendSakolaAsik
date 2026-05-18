@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\UserRoleHelper;
 use App\Models\Ujian;
 use App\Models\DetailUjian;
 use App\Models\UjianSoal;
@@ -139,7 +140,7 @@ class UjianController extends SekolahAwareController
             }
         }
 
-        return redirect()->route(userRole().'.ujian.show', $ujian->id)
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.ujian.show', $ujian->id)
             ->with('success', 'Ujian berhasil dibuat.');
     }
     /**
@@ -272,7 +273,7 @@ class UjianController extends SekolahAwareController
             }
         }
 
-        return redirect()->route(userRole().'.ujian.show', $ujian->id)
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.ujian.show', $ujian->id)
             ->with('success', 'Ujian berhasil diperbarui.');
     }
 
@@ -284,7 +285,7 @@ class UjianController extends SekolahAwareController
         $ujian = $this->addSekolahFilter(Ujian::query(), Ujian::class)->findOrFail($id);
         $ujian->delete();
 
-        return redirect()->route(userRole().'.ujian.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.ujian.index')
             ->with('success', 'Ujian berhasil dihapus.');
     }
 
@@ -366,7 +367,7 @@ class UjianController extends SekolahAwareController
 
         DetailUjian::create($data);
 
-        return redirect()->route(userRole().'.ujian.show', $id)
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.ujian.show', $id)
             ->with('success', 'Soal berhasil ditambahkan.');
     }
 
@@ -436,7 +437,7 @@ class UjianController extends SekolahAwareController
 
         $soal->update($data);
 
-        return redirect()->route(userRole().'.ujian.show', $id)
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.ujian.show', $id)
             ->with('success', 'Soal berhasil diperbarui.');
     }
 
@@ -548,7 +549,7 @@ class UjianController extends SekolahAwareController
         
         $soal->delete();
 
-        return redirect()->route(userRole().'.ujian.show', $id)
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.ujian.show', $id)
             ->with('success', 'Soal berhasil dihapus.');
     }
 
@@ -599,17 +600,17 @@ class UjianController extends SekolahAwareController
             Log::info('File path: ' . $filePath);
 
             if ($result && $updatedUjian->file_soal === $fileName) {
-                return redirect()->route(userRole().'.ujian.show', $ujian->id)
+                return redirect()->route(UserRoleHelper::getCurrentUserRole().'.ujian.show', $ujian->id)
                     ->with('success', 'File soal berhasil diupload.');
             } else {
-                return redirect()->route(userRole().'.ujian.show', $ujian->id)
+                return redirect()->route(UserRoleHelper::getCurrentUserRole().'.ujian.show', $ujian->id)
                     ->with('error', 'File berhasil diupload ke storage tapi gagal tersimpan di database.');
             }
         } catch (\Exception $e) {
             Log::error('Error uploading soal document: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
             
-            return redirect()->route(userRole().'.ujian.show', $ujian->id)
+            return redirect()->route(UserRoleHelper::getCurrentUserRole().'.ujian.show', $ujian->id)
                 ->with('error', 'Gagal mengupload file soal: ' . $e->getMessage());
         }
     }
@@ -782,7 +783,7 @@ class UjianController extends SekolahAwareController
                     'gambar_soal' => $fileName,
                 ]);
 
-                return redirect()->route(userRole().'.ujian.show', $ujian->id)
+                return redirect()->route(UserRoleHelper::getCurrentUserRole().'.ujian.show', $ujian->id)
                     ->with('success', 'Gambar soal berhasil diupload!');
             }
 

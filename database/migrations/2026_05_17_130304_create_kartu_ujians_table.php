@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('kode_kartu_ujian')->unique();
             $table->string('nama_ujian');
             $table->string('tahun_ajaran');
-            $table->foreignId('id_kelas')->constrained('kelas', 'id');
+            $table->unsignedBigInteger('id_kelas');
             $table->timestamps();
         });
     }
