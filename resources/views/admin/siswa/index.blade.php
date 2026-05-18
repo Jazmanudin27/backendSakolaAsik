@@ -263,7 +263,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    {!! $siswa->links('pagination::bootstrap-5') !!}
+                                    {!! $siswa->appends(request()->query())->links('pagination::bootstrap-5') !!}
                                 </div>
                             </div>
                         </div>

@@ -137,9 +137,11 @@
                                 <label class="form-label">Jabatan</label>
                                 <select class="form-select select2" name="jabatan">
                                     <option value="">Semua Jabatan</option>
-                                    <option value="Kepala Sekolah" {{ request('jabatan') == 'Kepala Sekolah' ? 'selected' : '' }}>
+                                    <option value="Kepala Sekolah"
+                                        {{ request('jabatan') == 'Kepala Sekolah' ? 'selected' : '' }}>
                                         Kepala Sekolah</option>
-                                    <option value="Wakil Kepala Sekolah" {{ request('jabatan') == 'Wakil Kepala Sekolah' ? 'selected' : '' }}>
+                                    <option value="Wakil Kepala Sekolah"
+                                        {{ request('jabatan') == 'Wakil Kepala Sekolah' ? 'selected' : '' }}>
                                         Wakil Kepala Sekolah</option>
                                     <option value="Guru" {{ request('jabatan') == 'Guru' ? 'selected' : '' }}>
                                         Guru</option>
@@ -265,9 +267,9 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="col-md-6">
-                            {!! $siswa->links('pagination::bootstrap-5') !!}
-                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        {!! $gurus->links('pagination::bootstrap-5') !!}
                     </div>
                 </div>
             </div>
