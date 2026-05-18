@@ -156,7 +156,6 @@ class AdminSiswaController extends SekolahAwareController
             'agama' => 'nullable|string|max:45',
             'status' => 'nullable|string|max:30',
             'kode_kelas' => 'required|string|max:20',
-            'id_sekolah' => 'required|exists:sekolah,kode_sekolah',
             'username' => 'required|string|max:100|unique:siswa,username,' . $id . ',kode_siswa',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);

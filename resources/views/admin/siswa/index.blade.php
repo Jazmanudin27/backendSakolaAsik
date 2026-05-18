@@ -263,43 +263,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <nav aria-label="Page navigation">
-                                        <ul class="pagination pagination-sm justify-content-end mb-0">
-                                            {{-- Previous Page Link --}}
-                                            @if ($siswa->onFirstPage())
-                                                <li class="page-item disabled">
-                                                    <span class="page-link">
-                                                        <i class="fas fa-chevron-left"></i>
-                                                    </span>
-                                                </li>
-                                            @else
-                                                <li class="page-item">
-                                                    <a class="page-link" href="{{ $siswa->previousPageUrl() }}"
-                                                        rel="prev">
-                                                        <i class="fas fa-chevron-left"></i>
-                                                    </a>
-                                                </li>
-                                            @endif
-
-                                            {!! $siswa->links('pagination::bootstrap-5') !!}
-
-                                            {{-- Next Page Link --}}
-                                            @if ($siswa->hasMorePages())
-                                                <li class="page-item">
-                                                    <a class="page-link" href="{{ $siswa->nextPageUrl() }}"
-                                                        rel="next">
-                                                        <i class="fas fa-chevron-right"></i>
-                                                    </a>
-                                                </li>
-                                            @else
-                                                <li class="page-item disabled">
-                                                    <span class="page-link">
-                                                        <i class="fas fa-chevron-right"></i>
-                                                    </span>
-                                                </li>
-                                            @endif
-                                        </ul>
-                                    </nav>
+                                    {!! $siswa->links('pagination::bootstrap-5') !!}
                                 </div>
                             </div>
                         </div>
@@ -308,22 +272,4 @@
             </div>
         </div>
     </div>
-
-    @if ($siswa->hasPages())
-        <div class="card-footer bg-white">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <div class="text-muted">
-                        <small>
-                            Menampilkan {{ $siswa->firstItem() }} - {{ $siswa->lastItem() }}
-                            dari {{ $siswa->total() }} data
-                        </small>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    {!! $siswa->links('pagination::bootstrap-5') !!}
-                </div>
-            </div>
-        </div>
-    @endif
 @endsection

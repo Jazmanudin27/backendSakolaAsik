@@ -4,7 +4,6 @@
 
 @section('content')
     <div class="container-fluid p-0">
-        <!-- Header Section -->
         <div class="row mb-3">
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center">
@@ -107,12 +106,12 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-3">
                         <form method="GET" class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label">Cari Guru</label>
                                 <input type="text" name="search" class="form-control form-control-sm"
-                                    placeholder="Cari nama guru..." value="{{ request('search') }}">
+                                    placeholder="Cari nama guru, email, atau no HP..." value="{{ request('search') }}">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label">Status</label>
                                 <select class="form-select select2" name="status">
                                     <option value="">Semua Status</option>
@@ -124,15 +123,32 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="form-label">Jenis Kelamin</label>
                                 <select class="form-select select2" name="jk">
-                                    <option value="">Semua Jenis Kelamin</option>
+                                    <option value="">Semua JK</option>
                                     <option value="Laki-laki" {{ request('jk') == 'Laki-laki' ? 'selected' : '' }}>
                                         Laki-laki</option>
                                     <option value="Perempuan" {{ request('jk') == 'Perempuan' ? 'selected' : '' }}>
                                         Perempuan</option>
                                 </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Jabatan</label>
+                                <select class="form-select select2" name="jabatan">
+                                    <option value="">Semua Jabatan</option>
+                                    <option value="Kepala Sekolah" {{ request('jabatan') == 'Kepala Sekolah' ? 'selected' : '' }}>
+                                        Kepala Sekolah</option>
+                                    <option value="Wakil Kepala Sekolah" {{ request('jabatan') == 'Wakil Kepala Sekolah' ? 'selected' : '' }}>
+                                        Wakil Kepala Sekolah</option>
+                                    <option value="Guru" {{ request('jabatan') == 'Guru' ? 'selected' : '' }}>
+                                        Guru</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary btn-sm w-100">
+                                    <i class="fas fa-search me-1"></i> Filter
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -249,16 +265,9 @@
                                 </tbody>
                             </table>
                         </div>
-
-                        <!-- Pagination -->
-                        @if ($gurus->hasPages())
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <small class="text-muted">
-                                    Menampilkan {{ $gurus->count() }} dari {{ $gurus->total() }} data
-                                </small>
-                                {{ $gurus->links() }}
-                            </div>
-                        @endif
+                        <div class="col-md-6">
+                            {!! $siswa->links('pagination::bootstrap-5') !!}
+                        </div>
                     </div>
                 </div>
             </div>
