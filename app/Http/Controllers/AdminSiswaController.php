@@ -17,7 +17,7 @@ class AdminSiswaController extends SekolahAwareController
     public function index(Request $request)
     {
         $query = $this->addSekolahFilter(Siswa::with('sekolah', 'kelas'), Siswa::class);
-        
+
         // Search by name, NISN, or NIS
         if ($request->filled('search')) {
             $search = $request->search;
@@ -27,20 +27,26 @@ class AdminSiswaController extends SekolahAwareController
                   ->orWhere('nis', 'like', "%{$search}%");
             });
         }
-        
+
         // Filter by jenis kelamin
         if ($request->filled('jk')) {
             $query->where('jk', $request->jk);
         }
-        
+
         // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-        
+
+        // Filter by kelas
+        if ($request->filled('kode_kelas')) {
+            $query->where('kode_kelas', $request->kode_kelas);
+        }
+
         $siswa = $query->latest()->paginate(10);
-        
-        return view('admin.siswa.index', compact('siswa'));
+        $kelas = $this->getSekolahOptions(\App\Models\Kelas::query(), \App\Models\Kelas::class)->get();
+
+        return view('admin.siswa.index', compact('siswa', 'kelas'));
     }
 
     /**
