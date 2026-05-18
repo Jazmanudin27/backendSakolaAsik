@@ -199,7 +199,7 @@ class AdminSiswaController extends SekolahAwareController
 
         $siswa->update($data);
 
-        return redirect()->route(userRole().'.siswa.index')
+        return redirect()->route(UserRoleHelper::getCurrentUserRole().'.siswa.index')
             ->with('success', 'Data siswa berhasil diperbarui!');
     }
 
