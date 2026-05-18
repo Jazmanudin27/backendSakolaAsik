@@ -113,7 +113,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('ujian/{id}/view-soal-document', [UjianController::class, 'viewSoalDocument'])->name('ujian.view-soal-document');
         // Gambar Soal Routes
         Route::post('ujian/{id}/upload-gambar-soal', [UjianController::class, 'uploadGambarSoal'])->name('ujian.upload-gambar-soal');
-        
+        // Audio Listening Routes
+        Route::post('ujian/{id}/upload-audio/{soalId}', [UjianController::class, 'uploadAudio'])->name('ujian.upload-audio');
+
         // Hasil Ujian Siswa Routes
         Route::get('hasil-ujian', [HasilUjianSiswaController::class, 'index'])->name('hasil-ujian.index');
         Route::get('hasil-ujian/{id}', [HasilUjianSiswaController::class, 'show'])->name('hasil-ujian.show');
@@ -241,6 +243,7 @@ Route::prefix('guru')->name('guru.')->group(function () {
         ]);
         Route::get('kartu-ujian/{id}/print', [AdminKartuUjianController::class, 'print'])->name('kartu-ujian.print');
         Route::post('kartu-ujian/{id}/update-ruangan', [AdminKartuUjianController::class, 'updateRuangan'])->name('kartu-ujian.update-ruangan');
+        Route::post('ujian/{id}/upload-audio/{soalId}', [UjianController::class, 'uploadAudio'])->name('ujian.upload-audio');
 
 
         Route::resource('siswa', AdminSiswaController::class)->names([

@@ -354,10 +354,18 @@
                                                             @csrf
                                                             @method('PUT')
                                                             <select name="tipe_soal" class="form-select select2">
-                                                                <option value="pilihan_ganda" {{ $soal->tipe_soal == 'pilihan_ganda' ? 'selected' : '' }}>Pilihan Ganda</option>
-                                                                <option value="essay" {{ $soal->tipe_soal == 'essay' ? 'selected' : '' }}>Essay</option>
-                                                                <option value="benar_salah" {{ $soal->tipe_soal == 'benar_salah' ? 'selected' : '' }}>Benar/Salah</option>
-                                                                <option value="isian_singkat" {{ $soal->tipe_soal == 'isian_singkat' ? 'selected' : '' }}>Isian Singkat</option>
+                                                                <option value="pilihan_ganda"
+                                                                    {{ $soal->tipe_soal == 'pilihan_ganda' ? 'selected' : '' }}>
+                                                                    Pilihan Ganda</option>
+                                                                <option value="essay"
+                                                                    {{ $soal->tipe_soal == 'essay' ? 'selected' : '' }}>
+                                                                    Essay</option>
+                                                                <option value="benar_salah"
+                                                                    {{ $soal->tipe_soal == 'benar_salah' ? 'selected' : '' }}>
+                                                                    Benar/Salah</option>
+                                                                <option value="isian_singkat"
+                                                                    {{ $soal->tipe_soal == 'isian_singkat' ? 'selected' : '' }}>
+                                                                    Isian Singkat</option>
                                                             </select>
                                                         </form>
                                                     </td>
@@ -421,6 +429,11 @@
                                                                 class="btn btn-sm btn-warning" title="Edit Soal">
                                                                 <i class="fas fa-edit"></i>
                                                             </a>
+                                                            <button type="button" class="btn btn-sm btn-info"
+                                                                title="Upload Audio Listening"
+                                                                onclick="openUploadAudioModal({{ $soal->id }})">
+                                                                <i class="fas fa-volume-up"></i>
+                                                            </button>
                                                             <form
                                                                 action="{{ route($userRole . '.ujian.destroy-soal', [$ujian->id, $soal->id]) }}"
                                                                 method="POST" class="d-inline">
@@ -552,7 +565,7 @@
                 if (result.isConfirmed) {
 
                     $.ajax({
-                        url: "{{ route($userRole.'.ujian.generate-questions', $ujian->id) }}",
+                        url: "{{ route($userRole . '.ujian.generate-questions', $ujian->id) }}",
                         type: "POST",
                         data: {
                             _token: "{{ csrf_token() }}",
@@ -682,6 +695,106 @@
 
             });
 
+        }
+    </script>
+
+    <!-- Modal Upload Audio Listening -->
+    <div class="modal fade" id="uploadAudioModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload Audio Listening</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadAudioForm" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" id="soalId" name="soal_id">
+                        <div class="mb-3">
+                            <label for="audio_file" class="form-label">File Audio</label>
+                            <input type="file" class="form-control" id="audio_file" name="audio_file"
+                                accept="audio/*" required>
+                            <div class="form-text">Format: MP3, WAV, OGG. Maksimal: 10MB</div>
+                        </div>
+                        <div id="audioPreview" class="mb-3" style="display: none;">
+                            <label class="form-label">Preview Audio:</label>
+                            <audio id="audioPlayer" controls style="width: 100%;"></audio>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="uploadAudio()">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadAudioModal;
+
+        function openUploadAudioModal(soalId) {
+            document.getElementById('soalId').value = soalId;
+            document.getElementById('audio_file').value = '';
+            document.getElementById('audioPreview').style.display = 'none';
+            uploadAudioModal = new bootstrap.Modal(document.getElementById('uploadAudioModal'));
+            uploadAudioModal.show();
+        }
+
+        document.getElementById('audio_file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const audioPlayer = document.getElementById('audioPlayer');
+                audioPlayer.src = URL.createObjectURL(file);
+                document.getElementById('audioPreview').style.display = 'block';
+            }
+        });
+
+        function uploadAudio() {
+            const form = document.getElementById('uploadAudioForm');
+            const formData = new FormData(form);
+            const soalId = document.getElementById('soalId').value;
+
+            formData.append('_token', '{{ csrf_token() }}');
+
+            $.ajax({
+                url: "/{{ $userRole }}/ujian/{{ $ujian->id }}/upload-audio/" + soalId,
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function() {
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Sedang mengupload audio',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Audio berhasil diupload'
+                    }).then(() => {
+                        uploadAudioModal.hide();
+                        location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    let message = 'Terjadi kesalahan';
+                    if (xhr.responseJSON?.message) {
+                        message = xhr.responseJSON.message;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: message
+                    });
+                }
+            });
         }
     </script>
 @endsection

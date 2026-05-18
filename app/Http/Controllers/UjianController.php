@@ -773,10 +773,10 @@ class UjianController extends SekolahAwareController
             if ($request->hasFile('gambar_soal')) {
                 $file = $request->file('gambar_soal');
                 $fileName = time() . '_' . $file->getClientOriginalName();
-                
+
                 // Store the file properly
                 $path = $file->storeAs('soal_ujian', $fileName, 'public');
-                
+
                 // Create record in database
                 UjianSoal::create([
                     'id_ujian' => $ujian->id,
@@ -794,6 +794,59 @@ class UjianController extends SekolahAwareController
             Log::error('Error uploading gambar soal: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan saat mengupload gambar soal.');
+        }
+    }
+
+    /**
+     * Upload audio for listening question
+     */
+    public function uploadAudio(Request $request, $id, $soalId)
+    {
+        $request->validate([
+            'audio_file' => 'required|mimes:mp3,wav,ogg|max:10240'
+        ]);
+
+        try {
+            $soal = DetailUjian::findOrFail($soalId);
+            // Delete old audio if exists
+            if ($soal->listening && file_exists(public_path('storage/audio_listening/' . $soal->listening))) {
+                unlink(public_path('storage/audio_listening/' . $soal->listening));
+            }
+
+            if ($request->hasFile('audio_file')) {
+                $file = $request->file('audio_file');
+                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+                // Create directory if not exists
+                if (!is_dir(public_path('storage/audio_listening'))) {
+                    mkdir(public_path('storage/audio_listening'), 0755, true);
+                }
+
+                // Move file to storage
+                $file->move(public_path('storage/audio_listening'), $fileName);
+
+                // Update soal with audio file path
+                $soal->update([
+                    'listening' => $fileName
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Audio berhasil diupload'
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada file yang diupload'
+            ], 400);
+
+        } catch (\Exception $e) {
+            Log::error('Error uploading audio: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengupload audio: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

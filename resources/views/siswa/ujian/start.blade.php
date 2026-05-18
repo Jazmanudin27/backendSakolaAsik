@@ -87,6 +87,19 @@
                                     <div class="question-item" data-question="{{ $index }}"
                                         style="display: {{ $index == 0 ? 'block' : 'none' }}">
                                         <input type="hidden" name="soal_ids[]" value="{{ $soal->id }}">
+                                        @if ($soal->listening)
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">
+                                                    <i class="fas fa-volume-up me-2"></i>Audio Listening
+                                                </label>
+                                                <audio controls class="w-100">
+                                                    <source
+                                                        src="{{ asset('storage/audio_listening/' . $soal->listening) }}"
+                                                        type="audio/mpeg">
+                                                    Browser Anda tidak mendukung elemen audio.
+                                                </audio>
+                                            </div>
+                                        @endif
                                         @if ($soal->tipe_soal == 'pilihan_ganda')
                                             <div class="row">
                                                 <div class="col-md-2">

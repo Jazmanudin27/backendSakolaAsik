@@ -20,6 +20,7 @@ class DetailUjian extends Model
         'bobot',
         'pembahasan',
         'tingkat_kesulitan',
+        'listening',
     ];
 
     public function ujian()
